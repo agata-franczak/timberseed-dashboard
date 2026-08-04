@@ -21,7 +21,11 @@ except ImportError:
 
 API_KEY  = os.environ.get("RECRUITCRM_API_KEY", "")
 BASE_URL = "https://api.recruitcrm.io/v1"
-HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
+HEADERS  = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
 
 CONSULTANTS = [
     {
@@ -62,15 +66,23 @@ STAGE_ORDER = ["CV Sent", "1st Interviews", "Further Interviews", "Final Intervi
 # ── API helpers ───────────────────────────────────────────────────────────────
 
 def rc_get(path, params=None):
-    r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
-                     params=params or {}, timeout=30)
+    r = requests.get(
+        f"{BASE_URL}{path}",
+        headers=HEADERS,
+        params=params or {},
+        timeout=30,
+    )
     r.raise_for_status()
     return r.json()
 
 def paginate(path, params, key, label=""):
     out, page = [], 1
     while True:
-        data = rc_get(path, {**params, "page": page, "limit": 100})
+        try:
+            data = rc_get(path, {**params, "page": page, "limit": 100})
+        except requests.exceptions.HTTPError as e:
+            print(f"  {label} HTTP error on page {page}: {e}")
+            break
         batch = data.get(key, [])
         out.extend(batch)
         print(f"  {label} p{page}: {len(batch)}", flush=True)
@@ -84,11 +96,19 @@ def paginate(path, params, key, label=""):
 def fetch_meetings(owner_id, days=90):
     end   = datetime.now(timezone.utc)
     start = end - timedelta(days=days)
-    return paginate("/meetings",
-                    {"owner_id": owner_id,
-                     "starting_from": start.strftime("%Y-%m-%d"),
-                     "starting_to":   end.strftime("%Y-%m-%d")},
-                    "meetings", f"meetings owner={owner_id}")
+    # Try both parameter formats RecruitCRM accepts
+    params = {
+        "owner_id":      owner_id,
+        "starting_from": start.strftime("%Y-%m-%d"),
+        "starting_to":   end.strftime("%Y-%m-%d"),
+    }
+    results = paginate("/meetings", params, "meetings", f"meetings owner={owner_id}")
+    # Fallback: if 0 results, try without date params to confirm auth works
+    if len(results) == 0:
+        test = rc_get("/meetings", {"owner_id": owner_id, "limit": 1})
+        total = test.get("total_count", test.get("returned_count", 0))
+        print(f"  Auth check: total meetings for {owner_id} = {total}")
+    return results
 
 def classify_meetings(raw, consultant):
     out = []
@@ -99,7 +119,6 @@ def classify_meetings(raw, consultant):
         if pattern:
             is_call = pattern in t
         else:
-            # Finn: any meeting not matching exclusions
             is_call = not any(p in t.lower() for p in FINN_EXCLUDE)
         out.append({"date": d, "is_call": is_call})
     return out
@@ -107,38 +126,77 @@ def classify_meetings(raw, consultant):
 # ── Fetch distribution job ────────────────────────────────────────────────────
 
 def fetch_dist_job(slug):
+    """Fetch distribution job candidate counts."""
     if not slug:
         return None, []
-    cands = paginate(f"/jobs/{slug}/candidates", {}, "assigned_candidates",
-                     f"dist {slug[:12]}")
+    try:
+        # Try direct endpoint
+        cands = paginate(
+            f"/jobs/{slug}/candidates", {}, "assigned_candidates",
+            f"dist {slug[:12]}"
+        )
+    except Exception as e:
+        print(f"  dist job error: {e}")
+        # Fallback: search candidates by job
+        try:
+            cands = paginate(
+                "/candidates",
+                {"job_slug": slug},
+                "candidates",
+                f"dist fallback {slug[:12]}"
+            )
+        except Exception as e2:
+            print(f"  dist fallback error: {e2}")
+            return None, []
+
+    if not cands:
+        return None, []
+
     stages = {}
     for c in cands:
-        lbl = c.get("status_label", "Unknown")
+        lbl = c.get("status_label") or c.get("current_status") or "Unknown"
         stages[lbl] = stages.get(lbl, 0) + 1
     return len(cands), [{"stage": k, "count": v} for k, v in stages.items()]
 
 # ── Fetch pipeline ────────────────────────────────────────────────────────────
 
 def fetch_pipeline(owner_id):
-    """Get owned candidates currently at key stages across all this consultant's jobs."""
+    """Get owned candidates at key stages across active jobs."""
     # Get owned candidate slugs
-    owned = {c["slug"] for c in paginate("/candidates",
-             {"owner_id": owner_id}, "candidates", f"owned owner={owner_id}")
-             if c.get("slug")}
+    owned_raw = paginate(
+        "/candidates",
+        {"owner_id": owner_id},
+        "candidates",
+        f"owned owner={owner_id}"
+    )
+    owned = {c.get("slug") for c in owned_raw if c.get("slug")}
+    print(f"  owned slugs: {len(owned)}")
 
-    # Get active jobs owned by this consultant
-    jobs = rc_get("/jobs", {"owner_id": owner_id, "limit": 50,
-                             "job_status": "1"}).get("jobs", [])
+    # Get active jobs
+    try:
+        jobs_data = rc_get("/jobs", {"owner_id": owner_id, "limit": 50, "job_status": "1"})
+        jobs = jobs_data.get("jobs", [])
+    except Exception as e:
+        print(f"  jobs fetch error: {e}")
+        return []
 
     pipeline = []
+    stage_param = ",".join(str(s) for s in STAGE_IDS)
+
     for job in jobs:
         slug = job.get("slug")
         if not slug:
             continue
-        stage_param = ",".join(str(s) for s in STAGE_IDS)
-        cands = rc_get(f"/jobs/{slug}/candidates",
-                       {"limit": 100, "status_id": stage_param}
-                       ).get("assigned_candidates", [])
+        try:
+            result = rc_get(
+                f"/jobs/{slug}/candidates",
+                {"limit": 100, "status_id": stage_param}
+            )
+            cands = result.get("assigned_candidates", [])
+        except Exception as e:
+            print(f"  job {slug[:12]} candidates error: {e}")
+            continue
+
         for c in cands:
             if c.get("candidate_slug") in owned:
                 pipeline.append({
@@ -149,17 +207,19 @@ def fetch_pipeline(owner_id):
                 })
     return pipeline
 
-# ── Main fetch ────────────────────────────────────────────────────────────────
+# ── Main ─────────────────────────────────────────────────────────────────────
 
 def fetch_all():
-    now = datetime.now(timezone.utc)
+    now  = datetime.now(timezone.utc)
     data = {"generated_at": now.isoformat(), "consultants": []}
 
     for c in CONSULTANTS:
         print(f"\n▶ {c['name']}", flush=True)
 
-        raw = fetch_meetings(c["id"])
+        raw      = fetch_meetings(c["id"])
         meetings = classify_meetings(raw, c)
+        calls    = sum(1 for m in meetings if m["is_call"])
+        print(f"  classified calls: {calls}")
 
         dist_total, dist_stages = fetch_dist_job(c["dist_slug"])
 
@@ -169,15 +229,15 @@ def fetch_all():
             pipeline = []
 
         data["consultants"].append({
-            "name":                 c["name"],
-            "initials":             c["initials"],
-            "role":                 c["role"],
-            "meeting_label":        c["meeting_label"],
-            "meeting_note":         c["meeting_note"],
-            "meetings":             meetings,
-            "dist_total":           dist_total,
-            "dist_stages":          dist_stages,
-            "pipeline":             pipeline,
+            "name":          c["name"],
+            "initials":      c["initials"],
+            "role":          c["role"],
+            "meeting_label": c["meeting_label"],
+            "meeting_note":  c["meeting_note"],
+            "meetings":      meetings,
+            "dist_total":    dist_total,
+            "dist_stages":   dist_stages,
+            "pipeline":      pipeline,
         })
 
     return data
@@ -200,7 +260,6 @@ def build_html(data):
   --bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--r:10px;--rs:6px}}
 body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
   background:var(--bg);color:var(--text);min-height:100vh}}
-/* header */
 .hdr{{background:var(--surface);border-bottom:1px solid var(--border);
   padding:1rem 1.5rem;display:flex;justify-content:space-between;
   align-items:center;position:sticky;top:0;z-index:50;gap:12px;flex-wrap:wrap}}
@@ -210,7 +269,6 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
   font-size:12px;font-weight:700;color:#fff}}
 .ln{{font-size:15px;font-weight:600}}.ls{{font-size:12px;color:var(--text3);margin-top:1px}}
 .gen{{font-size:11px;color:var(--text3)}}
-/* controls */
 .ctrl{{background:var(--surface);border-bottom:1px solid var(--border);
   padding:.875rem 1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}}
 .cl{{font-size:12px;font-weight:500;color:var(--text2)}}
@@ -227,7 +285,6 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
   border-radius:var(--rs);color:var(--text);background:var(--surface);
   cursor:pointer;font-family:inherit}}
 .ri{{font-size:11px;color:var(--text3);margin-left:auto}}
-/* layout */
 .main{{padding:1.25rem 1.5rem}}
 .sg{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:12px;margin-bottom:1.25rem}}
@@ -238,11 +295,8 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
 .sv{{font-size:24px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}}
 .ss{{font-size:11px;color:var(--text3);margin-top:3px}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}}
-/* card */
-.card{{background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r);overflow:hidden}}
-.ch{{padding:1rem 1.25rem;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px}}
+.card{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}}
+.ch{{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}}
 .av{{width:40px;height:40px;border-radius:50%;background:var(--purple-light);
   display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;color:var(--purple);flex-shrink:0}}
@@ -255,7 +309,6 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
 .bl{{font-size:13px;color:var(--text2)}}
 .bn{{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}}
 .bsub{{font-size:11px;color:var(--text3);margin-top:4px}}
-/* chart */
 .mc{{margin-top:10px}}
 .mb-wrap{{display:flex;align-items:flex-end;gap:2px;height:44px}}
 .mb{{flex:1;background:var(--purple-mid);border-radius:2px 2px 0 0;
@@ -264,25 +317,20 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
 .mb-n{{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
   font-size:7px;font-weight:700;color:var(--text2);white-space:nowrap;line-height:1}}
 .mx{{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:3px}}
-/* stage bar */
-.sb{{display:flex;height:6px;border-radius:3px;overflow:hidden;
-  margin-top:8px;background:var(--border)}}
+.sb{{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:8px;background:var(--border)}}
 .ss-seg{{height:100%}}
 .sl2{{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}}
 .leg{{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3)}}
 .ld{{width:7px;height:7px;border-radius:50%;flex-shrink:0}}
-/* funnel */
 .fn{{display:flex;flex-direction:column;gap:6px}}
 .fr{{display:flex;align-items:center;gap:8px}}
 .fl{{width:130px;font-size:12px;color:var(--text2);flex-shrink:0}}
 .ft{{flex:1;height:18px;background:var(--bg);border-radius:4px;overflow:hidden}}
 .ff{{height:100%;border-radius:4px;transition:width .4s ease}}
 .fnum{{width:24px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}}
-.fnames{{padding-left:138px;font-size:11px;color:var(--text3);
-  margin-top:1px;margin-bottom:2px;line-height:1.4}}
+.fnames{{padding-left:138px;font-size:11px;color:var(--text3);margin-top:1px;margin-bottom:2px;line-height:1.4}}
 .nodata{{font-size:12px;color:var(--text3);font-style:italic}}
-.note{{font-size:11px;color:var(--text3);border-top:1px solid var(--border);
-  padding-top:10px;line-height:1.5}}
+.note{{font-size:11px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px;line-height:1.5}}
 .finn-note{{font-size:12px;color:var(--text2);line-height:1.6;
   background:var(--purple-light);border-radius:var(--rs);padding:.75rem 1rem}}
 </style>
@@ -297,7 +345,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
 </header>
 <div class="ctrl">
   <span class="cl">Period:</span>
-  <div class="presets" id="presets">
+  <div class="presets">
     <button class="pb" data-days="7">7 days</button>
     <button class="pb" data-days="14">14 days</button>
     <button class="pb on" data-days="30">30 days</button>
@@ -317,8 +365,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
 </main>
 <script>
 const DATA={data_json};
-const SC={{"CV Sent":"#534AB7","1st Interviews":"#185FA5",
-  "Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"}};
+const SC={{"CV Sent":"#534AB7","1st Interviews":"#185FA5","Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"}};
 const SO=["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"];
 function dt(s){{const d=new Date(s);d.setHours(12);return d;}}
 function inR(ds,s,e){{if(!ds)return false;const d=dt(ds);return d>=s&&d<=e;}}
@@ -334,7 +381,7 @@ function render(s,e){{
   document.getElementById("gen-at").textContent=
     "Updated "+gen.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}})
     +" "+gen.toLocaleTimeString("en-GB",{{hour:"2-digit",minute:"2-digit"}})+" UTC";
-  document.getElementById("ri").textContent=fmt(s)+" – "+fmt(e);
+  document.getElementById("ri").textContent=fmt(s)+" \u2013 "+fmt(e);
   document.getElementById("from-date").value=s.toISOString().slice(0,10);
   document.getElementById("to-date").value=e.toISOString().slice(0,10);
   let tC=0,tD=0,tP=0,tPl=0;
@@ -345,14 +392,10 @@ function render(s,e){{
   }});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
   document.getElementById("sg").innerHTML=`
-    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div>
-      <div class="ss">All consultants</div></div>
-    <div class="sc"><div class="sl">Distribution</div><div class="sv">${{tD}}</div>
-      <div class="ss">Candidates assigned</div></div>
-    <div class="sc"><div class="sl">At key stages</div><div class="sv">${{tP}}</div>
-      <div class="ss">Owned pipeline</div></div>
-    <div class="sc"><div class="sl">Placed</div><div class="sv">${{tPl}}</div>
-      <div class="ss">In period</div></div>`;
+    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants</div></div>
+    <div class="sc"><div class="sl">Distribution</div><div class="sv">${{tD}}</div><div class="ss">Candidates assigned</div></div>
+    <div class="sc"><div class="sl">At key stages</div><div class="sv">${{tP}}</div><div class="ss">Owned pipeline</div></div>
+    <div class="sc"><div class="sl">Placed</div><div class="sv">${{tPl}}</div><div class="ss">In period</div></div>`;
 }}
 function bldCard(c,s,e){{
   const eod=new Date(e);eod.setHours(23,59,59,999);
@@ -366,11 +409,8 @@ function bldCard(c,s,e){{
   const bars=days.map(x=>{{
     const h=x.n>0?Math.max(Math.round((x.n/mxD)*40),3):1;
     const op=x.n>0?1:.08;
-    const num=x.n>0?(sn?`<span class="mb-n">${{x.n}}</span>`:`<span class="mb-n" style="display:none">${{x.n}}</span>`):"";
-    return `<div class="mb" style="height:${{h}}px;opacity:${{op}}" title="${{x.d}}: ${{x.n}}"
-      onmouseenter="this.querySelector('.mb-n')&&(this.querySelector('.mb-n').style.display='block')"
-      onmouseleave="${{sn?'':"this.querySelector('.mb-n')&&(this.querySelector('.mb-n').style.display='none')"}}">
-      ${{num}}</div>`;
+    const num=x.n>0?(sn?`<span class="mb-n">${{x.n}}</span>`:`<span class="mb-n" style="display:none">${{x.n}}</span>`):""  ;
+    return `<div class="mb" style="height:${{h}}px;opacity:${{op}}" title="${{x.d}}: ${{x.n}}" onmouseenter="this.querySelector('.mb-n')&&(this.querySelector('.mb-n').style.display='block')" onmouseleave="${{sn?'':"this.querySelector('.mb-n')&&(this.querySelector('.mb-n').style.display='none')"}}">  ${{num}}</div>`;
   }}).join("");
   const byS={{}};SO.forEach(st=>byS[st]=[]);
   c.pipeline.filter(p=>inR(p.stage_date,s,eod)).forEach(p=>{{if(byS[p.stage])byS[p.stage].push(p);}});
@@ -379,59 +419,20 @@ function bldCard(c,s,e){{
   const mxP=Math.max(...SO.map(st=>byS[st].length),1);
   let distHtml="";
   if(c.dist_total!=null){{
-    const segs=c.dist_stages.map(ds=>{{
-      const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";
-      return `<div class="ss-seg" style="flex:${{ds.count}};background:${{col}}" title="${{ds.stage}}: ${{ds.count}}"></div>`;
-    }}).join("");
-    const legs=c.dist_stages.map(ds=>{{
-      const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";
-      return `<div class="leg"><div class="ld" style="background:${{col}}"></div>${{ds.stage}}: ${{ds.count}}</div>`;
-    }}).join("");
-    distHtml=`<div><div class="secl">Distribution job — current</div>
-      <div class="bx"><div class="br"><div class="bl">${{c.name.split(" ")[0]}}'s dist. job</div>
-        <div class="bn">${{c.dist_total}}</div></div>
-        <div class="bsub">candidates assigned</div>
-        <div class="sb">${{segs}}</div><div class="sl2">${{legs}}</div></div></div>`;
+    const segs=c.dist_stages.map(ds=>{{const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";return `<div class="ss-seg" style="flex:${{ds.count}};background:${{col}}" title="${{ds.stage}}: ${{ds.count}}"></div>`;}}).join("");
+    const legs=c.dist_stages.map(ds=>{{const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";return `<div class="leg"><div class="ld" style="background:${{col}}"></div>${{ds.stage}}: ${{ds.count}}</div>`;}}).join("");
+    distHtml=`<div><div class="secl">Distribution job \u2014 current</div><div class="bx"><div class="br"><div class="bl">${{c.name.split(" ")[0]}}'s dist. job</div><div class="bn">${{c.dist_total}}</div></div><div class="bsub">candidates assigned</div><div class="sb">${{segs}}</div><div class="sl2">${{legs}}</div></div></div>`;
   }}
   const funnelHtml=SO.map(st=>{{
-    const cands=byS[st];
-    const pct=Math.round((cands.length/mxP)*100);
-    const names=cands.slice(0,4).map(p=>{{
-      const pts=p.name.split(" ");
-      const sh=pts[0]+(pts[1]?" "+pts[1][0]+".":"");
-      const pd=p.stage_date?new Date(p.stage_date):null;
-      return sh+(pd?" ("+pd.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}})+")":"");
-    }}).join(" · ");
-    return `<div class="fr"><div class="fl">${{st}}</div>
-      <div class="ft"><div class="ff" style="width:${{pct}}%;background:${{SC[st]}}"></div></div>
-      <div class="fnum">${{cands.length}}</div></div>
-      ${{names?`<div class="fnames">${{names}}</div>`:""}}`;
+    const cands=byS[st];const pct=Math.round((cands.length/mxP)*100);
+    const names=cands.slice(0,4).map(p=>{{const pts=p.name.split(" ");const sh=pts[0]+(pts[1]?" "+pts[1][0]+".":"");const pd=p.stage_date?new Date(p.stage_date):null;return sh+(pd?" ("+pd.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}})+")":"");}}).join(" \u00b7 ");
+    return `<div class="fr"><div class="fl">${{st}}</div><div class="ft"><div class="ff" style="width:${{pct}}%;background:${{SC[st]}}"></div></div><div class="fnum">${{cands.length}}</div></div>${{names?`<div class="fnames">${{names}}</div>`:""}}`;
   }}).join("");
   const isFinn=c.name==="Finn Phillips";
   const body=isFinn?
-    `<div class="finn-note">Finn joined Jul 2026. BD calls are logged as tasks in RecruitCRM
-      rather than meetings — see task log for full call activity.
-      1 confirmed external prospect call (James Pickering · Unily) in this period.</div>`:
-    `<div><div class="secl">Owned candidates at key stages — period</div>
-      ${{pipe===0?`<div class="nodata">No owned candidates moved to key stages in this period.</div>`:
-        `<div class="fn">${{funnelHtml}}</div>`}}
-    </div>
-    <div class="note">Pipeline covers active client jobs. Stage dates reflect when candidate last moved.</div>`;
-  const html=`<div class="card">
-    <div class="ch"><div class="av">${{c.initials}}</div>
-      <div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div>
-    <div class="cb">
-      <div><div class="secl">${{c.meeting_label}}</div>
-        <div class="bx">
-          <div class="br"><div class="bl">Calls held</div>
-            <div class="bn" style="color:var(--purple)">${{calls}}</div></div>
-          <div class="bsub">${{c.meeting_note}}</div>
-          ${{days.length>1?`<div class="mc"><div class="mb-wrap">${{bars}}</div>
-            <div class="mx"><span>${{fmtS(s)}}</span><span>${{fmtS(eod)}}</span></div></div>`:""}}
-        </div></div>
-      ${{distHtml}}
-      ${{body}}
-    </div></div>`;
+    `<div class="finn-note">Finn joined Jul 2026. BD calls are logged as tasks in RecruitCRM rather than meetings. 1 confirmed external prospect call (James Pickering \u00b7 Unily) in this period.</div>`:
+    `<div><div class="secl">Owned candidates at key stages \u2014 period</div>${{pipe===0?`<div class="nodata">No owned candidates moved to key stages in this period.</div>`:`<div class="fn">${{funnelHtml}}</div>`}}</div><div class="note">Pipeline covers active client jobs. Stage dates reflect when candidate last moved.</div>`;
+  const html=`<div class="card"><div class="ch"><div class="av">${{c.initials}}</div><div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div><div class="cb"><div><div class="secl">${{c.meeting_label}}</div><div class="bx"><div class="br"><div class="bl">Calls held</div><div class="bn" style="color:var(--purple)">${{calls}}</div></div><div class="bsub">${{c.meeting_note}}</div>${{days.length>1?`<div class="mc"><div class="mb-wrap">${{bars}}</div><div class="mx"><span>${{fmtS(s)}}</span><span>${{fmtS(eod)}}</span></div></div>`:""}}</div></div>${{distHtml}}${{body}}</div></div>`;
   return {{html,calls,pipe,placed}};
 }}
 function applyPreset(days){{
@@ -443,8 +444,7 @@ document.querySelectorAll(".pb").forEach(b=>b.addEventListener("click",()=>apply
 function applyCustom(){{
   const fv=document.getElementById("from-date").value,tv=document.getElementById("to-date").value;
   if(!fv||!tv)return;
-  const s=new Date(fv);s.setHours(0,0,0,0);
-  const e=new Date(tv);e.setHours(23,59,59,999);
+  const s=new Date(fv);s.setHours(0,0,0,0);const e=new Date(tv);e.setHours(23,59,59,999);
   if(s>e)return;
   document.querySelectorAll(".pb").forEach(b=>b.classList.remove("on"));
   render(s,e);
