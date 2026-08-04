@@ -1,0 +1,116 @@
+{
+  "updated_at": "2026-08-04T23:29:10.912536+00:00",
+  "note": "Update this file weekly by asking Claude to pull fresh distribution job and pipeline data via MCP.",
+  "dist_jobs": {
+    "Toby Ranson": {
+      "total": 128,
+      "stages": [
+        {
+          "stage": "Assigned",
+          "count": 29
+        },
+        {
+          "stage": "Call",
+          "count": 99
+        }
+      ]
+    },
+    "Joe Leonard": {
+      "total": 123,
+      "stages": [
+        {
+          "stage": "Assigned",
+          "count": 9
+        },
+        {
+          "stage": "Call",
+          "count": 114
+        }
+      ]
+    }
+  },
+  "pipeline": {
+    "Toby Ranson": [
+      {
+        "name": "Harry Gillingham",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-30",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Zack Johnson",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-29",
+        "job": "Inbound AE"
+      },
+      {
+        "name": "Ben Lahat",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-29",
+        "job": "Inbound AE"
+      },
+      {
+        "name": "Anthony Fallon",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-11",
+        "job": "Inbound AE"
+      },
+      {
+        "name": "Nick Pepe",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-18",
+        "job": "AE (Siro)"
+      },
+      {
+        "name": "Robbie Hassett",
+        "stage": "Further Interviews",
+        "stage_date": "2026-06-30",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Toni Adebambo",
+        "stage": "Further Interviews",
+        "stage_date": "2026-06-17",
+        "job": "SDR (Siro)"
+      }
+    ],
+    "Joe Leonard": [
+      {
+        "name": "Joel O'Donnell",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-26",
+        "job": "SDR (Siro)"
+      },
+      {
+        "name": "Charlie Thursfield",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-17",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Maria Rodriguez",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-17",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Marie Lallemand",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-01",
+        "job": "French SDR"
+      },
+      {
+        "name": "Nate S.",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-29",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Dan Rocca",
+        "stage": "Further Interviews",
+        "stage_date": "2026-06-25",
+        "job": "Inbound AE"
+      }
+    ]
+  }
+}
