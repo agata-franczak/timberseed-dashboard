@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-04T23:29:10.912536+00:00",
-  "note": "Update this file weekly by asking Claude to pull fresh distribution job and pipeline data via MCP.",
+  "updated_at": "2026-08-04T23:42:13.488514+00:00",
+  "note": "Update weekly by asking Claude to pull fresh pipeline data via MCP.",
   "dist_jobs": {
     "Toby Ranson": {
       "total": 128,
@@ -32,84 +32,84 @@
   "pipeline": {
     "Toby Ranson": [
       {
-        "name": "Harry Gillingham",
+        "name": "Arthur Thomas",
         "stage": "CV Sent",
-        "stage_date": "2026-06-30",
+        "stage_date": "2026-07-28",
         "job": "Grad SDR"
       },
       {
-        "name": "Zack Johnson",
-        "stage": "CV Sent",
-        "stage_date": "2026-06-29",
-        "job": "Inbound AE"
-      },
-      {
-        "name": "Ben Lahat",
-        "stage": "CV Sent",
-        "stage_date": "2026-06-29",
-        "job": "Inbound AE"
-      },
-      {
-        "name": "Anthony Fallon",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-11",
-        "job": "Inbound AE"
-      },
-      {
-        "name": "Nick Pepe",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-18",
-        "job": "AE (Siro)"
-      },
-      {
-        "name": "Robbie Hassett",
+        "name": "Jeremy Caracciolo",
         "stage": "Further Interviews",
-        "stage_date": "2026-06-30",
-        "job": "Ent AE"
+        "stage_date": "2026-07-29",
+        "job": "Grad SDR"
       },
       {
-        "name": "Toni Adebambo",
+        "name": "Max Fraine",
         "stage": "Further Interviews",
-        "stage_date": "2026-06-17",
-        "job": "SDR (Siro)"
+        "stage_date": "2026-08-04",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Archie Maxwell Macdonald",
+        "stage": "Final Interviews",
+        "stage_date": "2026-07-22",
+        "job": "English BDR"
+      },
+      {
+        "name": "Rishika Mahajan",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-15",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Zaakir Nauyeck",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-15",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Emma Smith",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-22",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Tashah Sweeteen",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-27",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Kim Arroyo",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-29",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Rhianna-May Duffy",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-29",
+        "job": "Grad SDR"
       }
     ],
     "Joe Leonard": [
       {
-        "name": "Joel O'Donnell",
-        "stage": "CV Sent",
-        "stage_date": "2026-06-26",
-        "job": "SDR (Siro)"
-      },
-      {
-        "name": "Charlie Thursfield",
-        "stage": "CV Sent",
-        "stage_date": "2026-06-17",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Maria Rodriguez",
-        "stage": "CV Sent",
-        "stage_date": "2026-06-17",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Marie Lallemand",
+        "name": "Parris Torres",
         "stage": "1st Interviews",
-        "stage_date": "2026-07-01",
-        "job": "French SDR"
-      },
-      {
-        "name": "Nate S.",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-29",
+        "stage_date": "2026-07-13",
         "job": "Ent AE"
       },
       {
-        "name": "Dan Rocca",
-        "stage": "Further Interviews",
-        "stage_date": "2026-06-25",
-        "job": "Inbound AE"
+        "name": "Tyler Jennings",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-13",
+        "job": "Ent AE"
+      },
+      {
+        "name": "David Swissman",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-15",
+        "job": "Ent AE"
       }
     ]
   }
