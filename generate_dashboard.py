@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-Timberseed Dashboard Generator
-RecruitCRM API: data in 'data' key, pagination via 'next_page_url'.
-"""
+"""Timberseed Dashboard - diagnostic for jobs/candidates endpoints."""
 
 import json, os, sys
 from datetime import datetime, timedelta, timezone
@@ -17,256 +14,52 @@ API_KEY  = os.environ.get("RECRUITCRM_API_KEY", "")
 BASE_URL = "https://api.recruitcrm.io/v1"
 HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
 
-DAYS_BACK = 90
-
-CONSULTANTS = [
-    {"name":"Toby Ranson",   "initials":"TR", "role":"Consultant",
-     "owner_id": 140768,
-     "pattern":"Introductory Phone Call | Toby",
-     "label":"Candidate intro calls", "note":"Scheduler-booked candidate calls"},
-    {"name":"Joe Leonard",   "initials":"JL", "role":"Consultant",
-     "owner_id": 143107,
-     "pattern":"Joe Leonard x",
-     "label":"Candidate intro calls", "note":"Scheduler-booked candidate calls"},
-    {"name":"Finn Phillips", "initials":"FP", "role":"Business Development",
-     "owner_id": 147065,
-     "pattern":"call james pickering",
-     "label":"BD prospect meetings", "note":"External prospect calls in RecruitCRM"},
-]
+TOBY_DIST_SLUG = "17798857082070098322oYJ"
+JOE_DIST_SLUG  = "17809259732490098322VkM"
+TOBY_ID = 140768
+JOE_ID  = 143107
 
 def rc_get(path, params=None):
     r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
                      params=params or {}, timeout=30)
-    r.raise_for_status()
-    return r.json()
-
-def fetch_meetings(owner_id):
-    """
-    Fetch meetings with date filter. RecruitCRM returns data in 'data' key.
-    Meetings are sorted newest-first, so we stop when we pass the cutoff.
-    """
-    end   = datetime.now(timezone.utc)
-    start = end - timedelta(days=DAYS_BACK)
-    cutoff = start.date().isoformat()
-
-    out, page = [], 1
-    params = {
-        "owner_id":      owner_id,
-        "starting_from": start.strftime("%Y-%m-%d"),
-        "starting_to":   end.strftime("%Y-%m-%d"),
-        "limit":         100,
-    }
-
-    while True:
-        body  = rc_get("/meetings", {**params, "page": page})
-        batch = body.get("data", [])
-        print(f"  meetings {owner_id} p{page}: {len(batch)} returned", flush=True)
-
-        if not batch:
-            break
-
-        # Filter to date range in case server ignores the params
-        in_range = [m for m in batch
-                    if (m.get("start_date") or "")[:10] >= cutoff]
-        out.extend(in_range)
-
-        # Stop if oldest meeting in this page is before cutoff
-        oldest = min((m.get("start_date") or "")[:10] for m in batch)
-        if oldest < cutoff:
-            print(f"  reached cutoff ({oldest} < {cutoff}), stopping")
-            break
-
-        if not body.get("next_page_url"):
-            break
-
-        # Safety cap: max 20 pages per consultant (~2000 meetings)
-        if page >= 20:
-            print(f"  hit page cap (20), stopping")
-            break
-
-        page += 1
-
-    print(f"  total in range: {len(out)}")
-    return out
-
-def classify(meetings, pattern):
-    out = []
-    for m in meetings:
-        t = (m.get("title") or "").replace("&lt;","<").replace("&gt;",">")
-        d = (m.get("start_date") or "")[:10]
-        out.append({"date": d, "is_call": pattern.lower() in t.lower()})
-    return out
-
-def fetch_all():
-    now  = datetime.now(timezone.utc)
-    data = {"generated_at": now.isoformat(), "consultants": []}
-    for c in CONSULTANTS:
-        print(f"\n▶ {c['name']}", flush=True)
-        raw      = fetch_meetings(c["owner_id"])
-        meetings = classify(raw, c["pattern"])
-        calls    = sum(1 for m in meetings if m["is_call"])
-        print(f"  calls classified: {calls}")
-        data["consultants"].append({
-            "name":          c["name"],
-            "initials":      c["initials"],
-            "role":          c["role"],
-            "meeting_label": c["label"],
-            "meeting_note":  c["note"],
-            "meetings":      meetings,
-            "pipeline":      [],
-        })
-    return data
-
-def build_html(data):
-    dj = json.dumps(data, ensure_ascii=False)
-    return f"""<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Timberseed \u00b7 Dashboard</title>
-<style>
-*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
-:root{{--p:#534AB7;--pm:#7F77DD;--pl:#EEEDFE;--t:#0f172a;--t2:#475569;--t3:#94a3b8;
-  --bg:#f8fafc;--s:#fff;--b:#e2e8f0;--r:10px;--rs:6px}}
-body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);min-height:100vh}}
-.hdr{{background:var(--s);border-bottom:1px solid var(--b);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;gap:12px;flex-wrap:wrap}}
-.logo{{display:flex;align-items:center;gap:10px}}
-.lm{{width:34px;height:34px;border-radius:8px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}}
-.ln{{font-size:15px;font-weight:600}}.ls{{font-size:12px;color:var(--t3);margin-top:1px}}
-.gen{{font-size:11px;color:var(--t3)}}
-.ctrl{{background:var(--s);border-bottom:1px solid var(--b);padding:.875rem 1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}}
-.cl{{font-size:12px;font-weight:500;color:var(--t2)}}
-.prs{{display:flex;gap:6px;flex-wrap:wrap}}
-.pb{{font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;border:1px solid var(--b);background:var(--s);color:var(--t2);cursor:pointer;transition:all .15s}}
-.pb:hover{{border-color:var(--p);color:var(--p)}}.pb.on{{background:var(--p);border-color:var(--p);color:#fff}}
-.sep{{width:1px;height:22px;background:var(--b)}}
-.cust{{display:flex;align-items:center;gap:6px;flex-wrap:wrap}}
-.cust label{{font-size:12px;color:var(--t3)}}
-.cust input{{font-size:12px;padding:4px 8px;border:1px solid var(--b);border-radius:var(--rs);color:var(--t);background:var(--s);font-family:inherit}}
-.ri{{font-size:11px;color:var(--t3);margin-left:auto}}
-.main{{padding:1.25rem 1.5rem}}
-.sg{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.25rem}}
-.sc{{background:var(--s);border:1px solid var(--b);border-radius:var(--rs);padding:.875rem 1rem}}
-.sl{{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:5px}}
-.sv{{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}}
-.ss{{font-size:11px;color:var(--t3);margin-top:3px}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}}
-.card{{background:var(--s);border:1px solid var(--b);border-radius:var(--r);overflow:hidden}}
-.ch{{padding:1rem 1.25rem;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px}}
-.av{{width:40px;height:40px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--p)}}
-.cn{{font-size:15px;font-weight:600}}.cr{{font-size:12px;color:var(--t3);margin-top:1px}}
-.cb{{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:16px}}
-.secl{{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}}
-.bx{{background:var(--bg);border:1px solid var(--b);border-radius:var(--rs);padding:.875rem 1rem}}
-.br{{display:flex;justify-content:space-between;align-items:baseline}}
-.bl{{font-size:13px;color:var(--t2)}}.bn{{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}}
-.bsub{{font-size:11px;color:var(--t3);margin-top:4px}}
-.mc{{margin-top:10px}}.mbw{{display:flex;align-items:flex-end;gap:2px;height:44px}}
-.mb{{flex:1;background:var(--pm);border-radius:2px 2px 0 0;min-width:2px;position:relative;cursor:default}}
-.mb:hover{{background:var(--p)}}
-.mbn{{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--t2);white-space:nowrap}}
-.mx{{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:3px}}
-.note{{font-size:11px;color:var(--t3);border-top:1px solid var(--b);padding-top:10px;line-height:1.5}}
-.fn-note{{font-size:12px;color:var(--t2);line-height:1.6;background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}}
-</style></head><body>
-<header class="hdr">
-  <div class="logo"><div class="lm">TS</div>
-    <div><div class="ln">Timberseed</div><div class="ls">Consultant Performance Dashboard</div></div>
-  </div>
-  <div class="gen" id="gen"></div>
-</header>
-<div class="ctrl">
-  <span class="cl">Period:</span>
-  <div class="prs">
-    <button class="pb" data-d="7">7 days</button>
-    <button class="pb" data-d="14">14 days</button>
-    <button class="pb on" data-d="30">30 days</button>
-    <button class="pb" data-d="60">60 days</button>
-    <button class="pb" data-d="90">90 days</button>
-  </div>
-  <div class="sep"></div>
-  <div class="cust">
-    <label>From</label><input type="date" id="fd">
-    <label>to</label><input type="date" id="td">
-  </div>
-  <div class="ri" id="ri"></div>
-</div>
-<main class="main"><div class="sg" id="sg"></div><div class="grid" id="grid"></div></main>
-<script>
-const D={dj};
-const fGB=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}});
-const fS=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}});
-function inR(ds,s,e){{if(!ds)return false;const d=new Date(ds);d.setHours(12);return d>=s&&d<=e;}}
-function bR(days){{const e=new Date();e.setHours(23,59,59,999);const s=new Date();s.setDate(s.getDate()-days);s.setHours(0,0,0,0);return{{s,e}};}}
-function render(s,e){{
-  const g=new Date(D.generated_at);
-  document.getElementById("gen").textContent="Updated "+fGB(g)+" "+g.toLocaleTimeString("en-GB",{{hour:"2-digit",minute:"2-digit"}})+" UTC";
-  document.getElementById("ri").textContent=fGB(s)+" \u2013 "+fGB(e);
-  document.getElementById("fd").value=s.toISOString().slice(0,10);
-  document.getElementById("td").value=e.toISOString().slice(0,10);
-  let tC=0;
-  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;return r;}});
-  document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
-  document.getElementById("sg").innerHTML=`
-    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants combined</div></div>`;
-}}
-function bC(c,s,e){{
-  const eod=new Date(e);eod.setHours(23,59,59,999);
-  const ci=c.meetings.filter(m=>m.is_call&&inR(m.date,s,eod));
-  const calls=ci.length;
-  const dm={{}};ci.forEach(m=>{{dm[m.date]=(dm[m.date]||0)+1;}});
-  const days=[];const cur=new Date(s);cur.setHours(12);
-  while(cur<=eod){{const k=cur.toISOString().slice(0,10);days.push({{d:k,n:dm[k]||0}});cur.setDate(cur.getDate()+1);}}
-  const mx=Math.max(...days.map(x=>x.n),1);const sn=days.length<=14;
-  const bars=days.map(x=>{{
-    const h=x.n>0?Math.max(Math.round((x.n/mx)*40),3):1;const op=x.n>0?1:.08;
-    const num=x.n>0?`<span class="mbn" style="${{sn?'':'display:none'}}">${{x.n}}</span>`:"";
-    return `<div class="mb" style="height:${{h}}px;opacity:${{op}}" title="${{x.d}}: ${{x.n}}"
-      onmouseenter="this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='block')"
-      onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">
-      ${{num}}</div>`;
-  }}).join("");
-  const isFinn=c.name==="Finn Phillips";
-  const body=isFinn?
-    `<div class="fn-note">Finn joined Jul 2026. BD calls logged as tasks in RecruitCRM. 1 confirmed external prospect meeting (James Pickering \u00b7 Unily).</div>`:
-    `<div class="note">Intro calls identified by scheduler title pattern.</div>`;
-  const html=`<div class="card">
-    <div class="ch"><div class="av">${{c.initials}}</div>
-      <div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div>
-    <div class="cb">
-      <div><div class="secl">${{c.meeting_label}}</div>
-        <div class="bx">
-          <div class="br"><div class="bl">Calls held</div>
-            <div class="bn" style="color:var(--p)">${{calls}}</div></div>
-          <div class="bsub">${{c.meeting_note}}</div>
-          ${{days.length>1?`<div class="mc"><div class="mbw">${{bars}}</div>
-            <div class="mx"><span>${{fS(s)}}</span><span>${{fS(eod)}}</span></div></div>`:""}}
-        </div></div>
-      ${{body}}
-    </div></div>`;
-  return {{html,calls}};
-}}
-function applyPreset(d){{
-  const {{s,e}}=bR(d);
-  document.querySelectorAll(".pb").forEach(b=>b.classList.toggle("on",+b.dataset.d===d));
-  render(s,e);
-}}
-document.querySelectorAll(".pb").forEach(b=>b.addEventListener("click",()=>applyPreset(+b.dataset.d)));
-function applyCustom(){{
-  const fv=document.getElementById("fd").value,tv=document.getElementById("td").value;
-  if(!fv||!tv)return;
-  const s=new Date(fv);s.setHours(0,0,0,0);const e=new Date(tv);e.setHours(23,59,59,999);
-  if(s>e)return;document.querySelectorAll(".pb").forEach(b=>b.classList.remove("on"));render(s,e);
-}}
-document.getElementById("fd").addEventListener("change",applyCustom);
-document.getElementById("td").addEventListener("change",applyCustom);
-applyPreset(30);
-</script></body></html>"""
+    print(f"  GET {path} → {r.status_code}")
+    if r.status_code != 200:
+        print(f"  body: {r.text[:200]}")
+        return {}
+    body = r.json()
+    print(f"  keys: {list(body.keys())}")
+    # Print any count-like fields
+    for k in ["total","total_count","returned_count","from","to","per_page","current_page"]:
+        if k in body:
+            print(f"  {k}: {body[k]}")
+    return body
 
 if __name__ == "__main__":
     if not API_KEY:
-        print("ERROR: RECRUITCRM_API_KEY not set"); sys.exit(1)
-    print(f"API key: {API_KEY[:8]}... ({len(API_KEY)} chars)", flush=True)
-    data = fetch_all()
+        print("ERROR: key not set"); sys.exit(1)
+
+    print("=== Test: Toby dist job candidates (page 1 only) ===")
+    rc_get(f"/jobs/{TOBY_DIST_SLUG}/candidates", {"limit": 1})
+
+    print("\n=== Test: Toby dist job candidates - assigned_candidates key ===")
+    b = rc_get(f"/jobs/{TOBY_DIST_SLUG}/candidates", {"limit": 1})
+    print(f"  'data' length: {len(b.get('data',[]))}")
+    print(f"  'assigned_candidates' length: {len(b.get('assigned_candidates',[]))}")
+
+    print("\n=== Test: Jobs for Toby (owner_id + job_status=1) ===")
+    rc_get("/jobs", {"owner_id": TOBY_ID, "job_status": "1", "limit": 5})
+
+    print("\n=== Test: Jobs for Toby (no status filter) ===")
+    rc_get("/jobs", {"owner_id": TOBY_ID, "limit": 5})
+
+    print("\n=== Test: Jobs with no filter ===")
+    b2 = rc_get("/jobs", {"limit": 5})
+    jobs = b2.get("data", [])
+    print(f"  jobs in data: {len(jobs)}")
+    for j in jobs[:3]:
+        print(f"    - {j.get('name')} | slug: {j.get('slug','')[:20]}")
+
+    # Write placeholder
     out = Path("docs"); out.mkdir(exist_ok=True)
-    (out / "index.html").write_text(build_html(data), encoding="utf-8")
-    print(f"\nDone. Generated at {data['generated_at']}")
+    (out / "index.html").write_text("<html><body><h1>Diagnostic run</h1></body></html>")
+    print("\nDone")
