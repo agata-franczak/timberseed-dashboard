@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Timberseed Dashboard Generator
-Fetches live data from RecruitCRM and generates dashboard HTML.
+Fetches all meetings from RecruitCRM, identifies each consultant by title pattern.
+No owner_id filtering needed — works with standard API key permissions.
 """
 
 import json, os, sys
@@ -17,26 +18,21 @@ API_KEY  = os.environ.get("RECRUITCRM_API_KEY", "")
 BASE_URL = "https://api.recruitcrm.io/v1"
 HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
 
+DAYS_BACK = 90  # how many days of history to embed; filtering is client-side
+
+# Each consultant is identified purely by title pattern — no owner_id needed
 CONSULTANTS = [
-    {"id":140768,"name":"Toby Ranson","initials":"TR","role":"Consultant",
-     "pattern":"Introductory Phone Call","label":"Candidate intro calls",
-     "note":"Scheduler-booked candidate calls"},
-    {"id":143107,"name":"Joe Leonard","initials":"JL","role":"Consultant",
-     "pattern":"Joe Leonard x","label":"Candidate intro calls",
-     "note":"Scheduler-booked candidate calls"},
-    {"id":147065,"name":"Finn Phillips","initials":"FP","role":"Business Development",
-     "pattern":None,"label":"BD prospect meetings",
-     "note":"External prospect calls (excl. CRM vendor)"},
+    {"name":"Toby Ranson",   "initials":"TR", "role":"Consultant",
+     "pattern":"Introductory Phone Call | Toby",
+     "label":"Candidate intro calls", "note":"Scheduler-booked candidate calls"},
+    {"name":"Joe Leonard",   "initials":"JL", "role":"Consultant",
+     "pattern":"Joe Leonard x",
+     "label":"Candidate intro calls", "note":"Scheduler-booked candidate calls"},
+    {"name":"Finn Phillips", "initials":"FP", "role":"Business Development",
+     "pattern":"call james pickering",   # Finn's only logged prospect call pattern
+     "label":"BD prospect meetings",     # (tasks are where his BD activity really lives)
+     "note":"External prospect calls logged in RecruitCRM"},
 ]
-
-FINN_EXCLUDE = ["eod update","bd daily updates","pt","finn a/l",
-                "inbox training","cancelled event","sourcewhale","dhruv"]
-
-STAGE_IDS   = {537163:"CV Sent",537164:"1st Interviews",
-               537165:"Further Interviews",537166:"Final Interviews",8:"Placed"}
-STAGE_ORDER = ["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"]
-
-DAYS_BACK = 90  # fetch 90 days of data; filtering happens client-side
 
 def rc_get(path, params=None):
     r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
@@ -44,95 +40,71 @@ def rc_get(path, params=None):
     r.raise_for_status()
     return r.json()
 
-def paginate(path, params, key, label=""):
+def fetch_all_meetings():
+    """Fetch ALL meetings for the account, last DAYS_BACK days."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).date().isoformat()
     out, page = [], 1
+    print(f"Fetching all meetings (cutoff {cutoff})...", flush=True)
     while True:
-        try:
-            data = rc_get(path, {**params, "page": page, "limit": 100})
-        except requests.HTTPError as e:
-            print(f"  {label} HTTP {e.response.status_code} on p{page} — stopping")
-            break
-        batch = data.get(key, [])
-        out.extend(batch)
-        print(f"  {label} p{page}: {len(batch)}", flush=True)
+        data = rc_get("/meetings", {"page": page, "limit": 100})
+        batch = data.get("meetings", [])
+        # filter to cutoff date
+        in_range = [m for m in batch
+                    if (m.get("start_date") or "")[:10] >= cutoff]
+        out.extend(in_range)
+        print(f"  p{page}: {len(batch)} returned, {len(in_range)} in range, total so far: {len(out)}", flush=True)
+        # stop if oldest record in this page is before cutoff (sorted desc)
+        if batch:
+            oldest = min((m.get("start_date") or "")[:10] for m in batch)
+            if oldest < cutoff:
+                print(f"  reached cutoff, stopping")
+                break
         if not data.get("has_more"):
             break
         page += 1
+    print(f"Total meetings fetched: {len(out)}")
     return out
 
-def fetch_meetings(owner_id):
-    """Fetch meetings by owner only — date filtering done in Python."""
+def classify_all(all_meetings):
+    """Split meetings into per-consultant call lists."""
     cutoff = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).date().isoformat()
-    raw = paginate("/meetings", {"owner_id": owner_id}, "meetings",
-                   f"meetings {owner_id}")
-    # filter to last DAYS_BACK days
-    filtered = [m for m in raw if (m.get("start_date") or "")[:10] >= cutoff]
-    print(f"  after date filter (>={cutoff}): {len(filtered)}")
-    return filtered
+    results = {}
+    for c in CONSULTANTS:
+        results[c["name"]] = []
 
-def classify(raw, consultant):
-    out = []
-    pat = consultant["pattern"]
-    for m in raw:
+    for m in all_meetings:
         t = (m.get("title") or "").replace("&lt;","<").replace("&gt;",">")
         d = (m.get("start_date") or "")[:10]
-        if pat:
-            is_call = pat in t
-        else:
-            is_call = not any(p in t.lower() for p in FINN_EXCLUDE)
-        out.append({"date": d, "is_call": is_call})
-    return out
+        if d < cutoff:
+            continue
+        tl = t.lower()
+        for c in CONSULTANTS:
+            if c["pattern"].lower() in tl:
+                results[c["name"]].append({"date": d, "is_call": True})
+                break
 
-def fetch_pipeline(owner_id):
-    """Owned candidates at key stages."""
-    owned = {c.get("slug") for c in
-             paginate("/candidates", {"owner_id": owner_id}, "candidates",
-                      f"owned {owner_id}") if c.get("slug")}
-    print(f"  owned: {len(owned)}")
-
-    try:
-        jobs = rc_get("/jobs", {"owner_id": owner_id, "job_status": "1",
-                                "limit": 50}).get("jobs", [])
-    except Exception as e:
-        print(f"  jobs error: {e}"); return []
-
-    pipeline, stage_param = [], ",".join(str(s) for s in STAGE_IDS)
-    for job in jobs:
-        slug = job.get("slug")
-        if not slug: continue
-        try:
-            cands = rc_get(f"/jobs/{slug}/candidates",
-                           {"limit": 100, "status_id": stage_param}
-                           ).get("assigned_candidates", [])
-        except Exception as e:
-            print(f"  job {slug[:10]} error: {e}"); continue
-        for c in cands:
-            if c.get("candidate_slug") in owned:
-                pipeline.append({
-                    "name": f"{c.get('first_name','')} {c.get('last_name','')}".strip(),
-                    "stage": c.get("status_label",""),
-                    "stage_date": (c.get("stage_date") or "")[:10],
-                    "job": job.get("name",""),
-                })
-    return pipeline
+    for c in CONSULTANTS:
+        n = len(results[c["name"]])
+        print(f"  {c['name']}: {n} calls identified")
+    return results
 
 def fetch_all():
     now  = datetime.now(timezone.utc)
     data = {"generated_at": now.isoformat(), "consultants": []}
+
+    all_meetings = fetch_all_meetings()
+    classified   = classify_all(all_meetings)
+
     for c in CONSULTANTS:
-        print(f"\n▶ {c['name']}", flush=True)
-        raw      = fetch_meetings(c["id"])
-        meetings = classify(raw, c)
-        calls    = sum(1 for m in meetings if m["is_call"])
-        print(f"  calls classified: {calls}")
-        if c.get("role") == "Consultant":
-            pipeline = fetch_pipeline(c["id"])
-        else:
-            pipeline = []
+        meetings = classified[c["name"]]
         data["consultants"].append({
-            "name": c["name"], "initials": c["initials"], "role": c["role"],
-            "meeting_label": c["label"], "meeting_note": c["note"],
-            "meetings": meetings, "pipeline": pipeline,
+            "name":          c["name"],
+            "initials":      c["initials"],
+            "role":          c["role"],
+            "meeting_label": c["label"],
+            "meeting_note":  c["note"],
+            "meetings":      meetings,
+            "pipeline":      [],   # pipeline requires owner-filtered API; omitted
         })
     return data
 
@@ -146,7 +118,8 @@ def build_html(data):
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{--p:#534AB7;--pm:#7F77DD;--pl:#EEEDFE;--t:#0f172a;--t2:#475569;--t3:#94a3b8;
   --bg:#f8fafc;--s:#fff;--b:#e2e8f0;--r:10px;--rs:6px}}
-body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t)}}
+body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--t);min-height:100vh}}
 .hdr{{background:var(--s);border-bottom:1px solid var(--b);padding:1rem 1.5rem;
   display:flex;justify-content:space-between;align-items:center;
   position:sticky;top:0;z-index:50;gap:12px;flex-wrap:wrap}}
@@ -192,16 +165,9 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .mbn{{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
   font-size:7px;font-weight:700;color:var(--t2);white-space:nowrap}}
 .mx{{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:3px}}
-.fn{{display:flex;flex-direction:column;gap:6px}}
-.fr{{display:flex;align-items:center;gap:8px}}
-.fl{{width:130px;font-size:12px;color:var(--t2);flex-shrink:0}}
-.ft{{flex:1;height:18px;background:var(--bg);border-radius:4px;overflow:hidden}}
-.ff{{height:100%;border-radius:4px;transition:width .4s}}
-.fnum{{width:24px;font-size:13px;font-weight:700;text-align:right}}
-.fnames{{padding-left:138px;font-size:11px;color:var(--t3);margin-top:1px;margin-bottom:2px;line-height:1.4}}
-.nodata{{font-size:12px;color:var(--t3);font-style:italic}}
 .note{{font-size:11px;color:var(--t3);border-top:1px solid var(--b);padding-top:10px;line-height:1.5}}
-.fn-note{{font-size:12px;color:var(--t2);line-height:1.6;background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}}
+.fn-note{{font-size:12px;color:var(--t2);line-height:1.6;
+  background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}}
 </style></head><body>
 <header class="hdr">
   <div class="logo"><div class="lm">TS</div>
@@ -231,8 +197,6 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 </main>
 <script>
 const D={dj};
-const SC={{"CV Sent":"#534AB7","1st Interviews":"#185FA5","Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"}};
-const SO=["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"];
 const fGB=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}});
 const fS=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}});
 function inR(ds,s,e){{if(!ds)return false;const d=new Date(ds);d.setHours(12);return d>=s&&d<=e;}}
@@ -243,13 +207,11 @@ function render(s,e){{
   document.getElementById("ri").textContent=fGB(s)+" \u2013 "+fGB(e);
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
-  let tC=0,tP=0,tPl=0;
-  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;tP+=r.pipe;tPl+=r.placed;return r;}});
+  let tC=0;
+  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;return r;}});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
   document.getElementById("sg").innerHTML=`
-    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants</div></div>
-    <div class="sc"><div class="sl">At key stages</div><div class="sv">${{tP}}</div><div class="ss">Owned pipeline</div></div>
-    <div class="sc"><div class="sl">Placed</div><div class="sv">${{tPl}}</div><div class="ss">In period</div></div>`;
+    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants combined</div></div>`;
 }}
 function bC(c,s,e){{
   const eod=new Date(e);eod.setHours(23,59,59,999);
@@ -269,30 +231,10 @@ function bC(c,s,e){{
       onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">
       ${{num}}</div>`;
   }}).join("");
-  const byS={{}};SO.forEach(st=>byS[st]=[]);
-  c.pipeline.filter(p=>inR(p.stage_date,s,eod)).forEach(p=>{{if(byS[p.stage])byS[p.stage].push(p);}});
-  const pipe=c.pipeline.filter(p=>inR(p.stage_date,s,eod)).length;
-  const placed=byS["Placed"].length;
-  const mxP=Math.max(...SO.map(st=>byS[st].length),1);
-  const funnel=SO.map(st=>{{
-    const ca=byS[st];const pct=Math.round((ca.length/mxP)*100);
-    const nm=ca.slice(0,4).map(p=>{{
-      const pts=p.name.split(" ");const sh=pts[0]+(pts[1]?" "+pts[1][0]+".":"");
-      const pd=p.stage_date?new Date(p.stage_date):null;
-      return sh+(pd?" ("+pd.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}})+")":"");
-    }}).join(" \u00b7 ");
-    return `<div class="fr"><div class="fl">${{st}}</div>
-      <div class="ft"><div class="ff" style="width:${{pct}}%;background:${{SC[st]}}"></div></div>
-      <div class="fnum">${{ca.length}}</div></div>
-      ${{nm?`<div class="fnames">${{nm}}</div>`:""}}`;
-  }}).join("");
   const isFinn=c.name==="Finn Phillips";
   const body=isFinn?
-    `<div class="fn-note">Finn joined Jul 2026. BD calls are logged as tasks in RecruitCRM rather than meetings. 1 confirmed external prospect call (James Pickering \u00b7 Unily) this period.</div>`:
-    `<div><div class="secl">Owned candidates at key stages</div>
-      ${{pipe===0?`<div class="nodata">No owned candidates moved to key stages in this period.</div>`:
-        `<div class="fn">${{funnel}}</div>`}}</div>
-    <div class="note">Pipeline covers active client jobs. Stage dates reflect when candidate last moved.</div>`;
+    `<div class="fn-note">Finn joined Jul 2026. BD calls are primarily logged as tasks in RecruitCRM. 1 external prospect meeting logged (James Pickering \u00b7 Unily).</div>`:
+    `<div class="note">Intro calls identified by scheduler title pattern. Pipeline data not shown (requires elevated API access).</div>`;
   const html=`<div class="card">
     <div class="ch"><div class="av">${{c.initials}}</div>
       <div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div>
@@ -307,7 +249,7 @@ function bC(c,s,e){{
         </div></div>
       ${{body}}
     </div></div>`;
-  return {{html,calls,pipe,placed}};
+  return {{html,calls,pipe:0,placed:0}};
 }}
 function applyPreset(d){{
   const {{s,e}}=bR(d);
@@ -319,9 +261,7 @@ function applyCustom(){{
   const fv=document.getElementById("fd").value,tv=document.getElementById("td").value;
   if(!fv||!tv)return;
   const s=new Date(fv);s.setHours(0,0,0,0);const e=new Date(tv);e.setHours(23,59,59,999);
-  if(s>e)return;
-  document.querySelectorAll(".pb").forEach(b=>b.classList.remove("on"));
-  render(s,e);
+  if(s>e)return;document.querySelectorAll(".pb").forEach(b=>b.classList.remove("on"));render(s,e);
 }}
 document.getElementById("fd").addEventListener("change",applyCustom);
 document.getElementById("td").addEventListener("change",applyCustom);
@@ -335,4 +275,4 @@ if __name__ == "__main__":
     data = fetch_all()
     out = Path("docs"); out.mkdir(exist_ok=True)
     (out / "index.html").write_text(build_html(data), encoding="utf-8")
-    print(f"\nDone. Generated at {data['generated_at']}")
+    print(f"Done. Generated at {data['generated_at']}")
