@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-04T23:42:13.488514+00:00",
-  "note": "Update weekly by asking Claude to pull fresh pipeline data via MCP.",
+  "updated_at": "2026-08-04T23:45:21.978718+00:00",
+  "note": "Pipeline covers candidates at key stages within the last 90 days. Update weekly via Claude MCP.",
   "dist_jobs": {
     "Toby Ranson": {
       "total": 128,
@@ -38,22 +38,34 @@
         "job": "Grad SDR"
       },
       {
-        "name": "Jeremy Caracciolo",
-        "stage": "Further Interviews",
-        "stage_date": "2026-07-29",
+        "name": "Harry Welch",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-24",
         "job": "Grad SDR"
       },
       {
-        "name": "Max Fraine",
-        "stage": "Further Interviews",
-        "stage_date": "2026-08-04",
+        "name": "Jack Wells",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-24",
         "job": "Grad SDR"
       },
       {
-        "name": "Archie Maxwell Macdonald",
-        "stage": "Final Interviews",
-        "stage_date": "2026-07-22",
-        "job": "English BDR"
+        "name": "Samuel Corner",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-24",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Julia Dalton",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-25",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Fred Strange",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-07",
+        "job": "Grad SDR"
       },
       {
         "name": "Rishika Mahajan",
@@ -74,9 +86,21 @@
         "job": "Grad SDR"
       },
       {
+        "name": "Andrea G.",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-23",
+        "job": "Grad SDR"
+      },
+      {
         "name": "Tashah Sweeteen",
         "stage": "1st Interviews",
         "stage_date": "2026-07-27",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Georgiy Savenko",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-28",
         "job": "Grad SDR"
       },
       {
@@ -90,6 +114,42 @@
         "stage": "1st Interviews",
         "stage_date": "2026-07-29",
         "job": "Grad SDR"
+      },
+      {
+        "name": "Jeremy Caracciolo",
+        "stage": "Further Interviews",
+        "stage_date": "2026-07-29",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Max Fraine",
+        "stage": "Further Interviews",
+        "stage_date": "2026-08-04",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Scarlett Joyce",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-14",
+        "job": "English BDR"
+      },
+      {
+        "name": "Ben Peters",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-14",
+        "job": "English BDR"
+      },
+      {
+        "name": "Rose Grundon",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-17",
+        "job": "English BDR"
+      },
+      {
+        "name": "Archie M. Macdonald",
+        "stage": "Final Interviews",
+        "stage_date": "2026-07-22",
+        "job": "English BDR"
       }
     ],
     "Joe Leonard": [
@@ -97,6 +157,12 @@
         "name": "Parris Torres",
         "stage": "1st Interviews",
         "stage_date": "2026-07-13",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Tom Crumley",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-02",
         "job": "Ent AE"
       },
       {
@@ -109,6 +175,30 @@
         "name": "David Swissman",
         "stage": "CV Sent",
         "stage_date": "2026-07-15",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Alex Wooliscroft",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-26",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Mazen Ibrahim",
+        "stage": "CV Sent",
+        "stage_date": "2026-06-29",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Anthony Scala",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-03",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Elizabeth Bolke",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-07",
         "job": "Ent AE"
       }
     ]
