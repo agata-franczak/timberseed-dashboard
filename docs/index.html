@@ -6,7 +6,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--p:#534AB7;--pm:#7F77DD;--pl:#EEEDFE;--t:#0f172a;--t2:#475569;--t3:#94a3b8;
   --bg:#f8fafc;--s:#fff;--b:#e2e8f0;--r:10px;--rs:6px}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--t);min-height:100vh}
 .hdr{background:var(--s);border-bottom:1px solid var(--b);padding:1rem 1.5rem;
   display:flex;justify-content:space-between;align-items:center;
   position:sticky;top:0;z-index:50;gap:12px;flex-wrap:wrap}
@@ -52,16 +53,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mbn{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
   font-size:7px;font-weight:700;color:var(--t2);white-space:nowrap}
 .mx{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:3px}
-.fn{display:flex;flex-direction:column;gap:6px}
-.fr{display:flex;align-items:center;gap:8px}
-.fl{width:130px;font-size:12px;color:var(--t2);flex-shrink:0}
-.ft{flex:1;height:18px;background:var(--bg);border-radius:4px;overflow:hidden}
-.ff{height:100%;border-radius:4px;transition:width .4s}
-.fnum{width:24px;font-size:13px;font-weight:700;text-align:right}
-.fnames{padding-left:138px;font-size:11px;color:var(--t3);margin-top:1px;margin-bottom:2px;line-height:1.4}
-.nodata{font-size:12px;color:var(--t3);font-style:italic}
 .note{font-size:11px;color:var(--t3);border-top:1px solid var(--b);padding-top:10px;line-height:1.5}
-.fn-note{font-size:12px;color:var(--t2);line-height:1.6;background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}
+.fn-note{font-size:12px;color:var(--t2);line-height:1.6;
+  background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}
 </style></head><body>
 <header class="hdr">
   <div class="logo"><div class="lm">TS</div>
@@ -90,9 +84,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div class="grid" id="grid"></div>
 </main>
 <script>
-const D={"generated_at": "2026-08-04T14:39:12.531111+00:00", "consultants": [{"name": "Toby Ranson", "initials": "TR", "role": "Consultant", "meeting_label": "Candidate intro calls", "meeting_note": "Scheduler-booked candidate calls", "meetings": [], "pipeline": []}, {"name": "Joe Leonard", "initials": "JL", "role": "Consultant", "meeting_label": "Candidate intro calls", "meeting_note": "Scheduler-booked candidate calls", "meetings": [], "pipeline": []}, {"name": "Finn Phillips", "initials": "FP", "role": "Business Development", "meeting_label": "BD prospect meetings", "meeting_note": "External prospect calls (excl. CRM vendor)", "meetings": [], "pipeline": []}]};
-const SC={"CV Sent":"#534AB7","1st Interviews":"#185FA5","Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"};
-const SO=["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"];
+const D={"generated_at": "2026-08-04T15:01:46.790511+00:00", "consultants": [{"name": "Toby Ranson", "initials": "TR", "role": "Consultant", "meeting_label": "Candidate intro calls", "meeting_note": "Scheduler-booked candidate calls", "meetings": [], "pipeline": []}, {"name": "Joe Leonard", "initials": "JL", "role": "Consultant", "meeting_label": "Candidate intro calls", "meeting_note": "Scheduler-booked candidate calls", "meetings": [], "pipeline": []}, {"name": "Finn Phillips", "initials": "FP", "role": "Business Development", "meeting_label": "BD prospect meetings", "meeting_note": "External prospect calls logged in RecruitCRM", "meetings": [], "pipeline": []}]};
 const fGB=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
 const fS=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 function inR(ds,s,e){if(!ds)return false;const d=new Date(ds);d.setHours(12);return d>=s&&d<=e;}
@@ -103,13 +95,11 @@ function render(s,e){
   document.getElementById("ri").textContent=fGB(s)+" – "+fGB(e);
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
-  let tC=0,tP=0,tPl=0;
-  const cards=D.consultants.map(c=>{const r=bC(c,s,e);tC+=r.calls;tP+=r.pipe;tPl+=r.placed;return r;});
+  let tC=0;
+  const cards=D.consultants.map(c=>{const r=bC(c,s,e);tC+=r.calls;return r;});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
   document.getElementById("sg").innerHTML=`
-    <div class="sc"><div class="sl">Total calls</div><div class="sv">${tC}</div><div class="ss">All consultants</div></div>
-    <div class="sc"><div class="sl">At key stages</div><div class="sv">${tP}</div><div class="ss">Owned pipeline</div></div>
-    <div class="sc"><div class="sl">Placed</div><div class="sv">${tPl}</div><div class="ss">In period</div></div>`;
+    <div class="sc"><div class="sl">Total calls</div><div class="sv">${tC}</div><div class="ss">All consultants combined</div></div>`;
 }
 function bC(c,s,e){
   const eod=new Date(e);eod.setHours(23,59,59,999);
@@ -129,30 +119,10 @@ function bC(c,s,e){
       onmouseleave="${sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}">
       ${num}</div>`;
   }).join("");
-  const byS={};SO.forEach(st=>byS[st]=[]);
-  c.pipeline.filter(p=>inR(p.stage_date,s,eod)).forEach(p=>{if(byS[p.stage])byS[p.stage].push(p);});
-  const pipe=c.pipeline.filter(p=>inR(p.stage_date,s,eod)).length;
-  const placed=byS["Placed"].length;
-  const mxP=Math.max(...SO.map(st=>byS[st].length),1);
-  const funnel=SO.map(st=>{
-    const ca=byS[st];const pct=Math.round((ca.length/mxP)*100);
-    const nm=ca.slice(0,4).map(p=>{
-      const pts=p.name.split(" ");const sh=pts[0]+(pts[1]?" "+pts[1][0]+".":"");
-      const pd=p.stage_date?new Date(p.stage_date):null;
-      return sh+(pd?" ("+pd.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+")":"");
-    }).join(" · ");
-    return `<div class="fr"><div class="fl">${st}</div>
-      <div class="ft"><div class="ff" style="width:${pct}%;background:${SC[st]}"></div></div>
-      <div class="fnum">${ca.length}</div></div>
-      ${nm?`<div class="fnames">${nm}</div>`:""}`;
-  }).join("");
   const isFinn=c.name==="Finn Phillips";
   const body=isFinn?
-    `<div class="fn-note">Finn joined Jul 2026. BD calls are logged as tasks in RecruitCRM rather than meetings. 1 confirmed external prospect call (James Pickering · Unily) this period.</div>`:
-    `<div><div class="secl">Owned candidates at key stages</div>
-      ${pipe===0?`<div class="nodata">No owned candidates moved to key stages in this period.</div>`:
-        `<div class="fn">${funnel}</div>`}</div>
-    <div class="note">Pipeline covers active client jobs. Stage dates reflect when candidate last moved.</div>`;
+    `<div class="fn-note">Finn joined Jul 2026. BD calls are primarily logged as tasks in RecruitCRM. 1 external prospect meeting logged (James Pickering · Unily).</div>`:
+    `<div class="note">Intro calls identified by scheduler title pattern. Pipeline data not shown (requires elevated API access).</div>`;
   const html=`<div class="card">
     <div class="ch"><div class="av">${c.initials}</div>
       <div><div class="cn">${c.name}</div><div class="cr">${c.role}</div></div></div>
@@ -167,7 +137,7 @@ function bC(c,s,e){
         </div></div>
       ${body}
     </div></div>`;
-  return {html,calls,pipe,placed};
+  return {html,calls,pipe:0,placed:0};
 }
 function applyPreset(d){
   const {s,e}=bR(d);
@@ -179,9 +149,7 @@ function applyCustom(){
   const fv=document.getElementById("fd").value,tv=document.getElementById("td").value;
   if(!fv||!tv)return;
   const s=new Date(fv);s.setHours(0,0,0,0);const e=new Date(tv);e.setHours(23,59,59,999);
-  if(s>e)return;
-  document.querySelectorAll(".pb").forEach(b=>b.classList.remove("on"));
-  render(s,e);
+  if(s>e)return;document.querySelectorAll(".pb").forEach(b=>b.classList.remove("on"));render(s,e);
 }
 document.getElementById("fd").addEventListener("change",applyCustom);
 document.getElementById("td").addEventListener("change",applyCustom);
