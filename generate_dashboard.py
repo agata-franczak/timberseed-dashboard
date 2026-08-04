@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Timberseed Dashboard - diagnostic for jobs/candidates endpoints."""
+"""Diagnostic - test candidate/pipeline counts via total field."""
 
 import json, os, sys
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 try:
@@ -14,52 +13,73 @@ API_KEY  = os.environ.get("RECRUITCRM_API_KEY", "")
 BASE_URL = "https://api.recruitcrm.io/v1"
 HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
 
-TOBY_DIST_SLUG = "17798857082070098322oYJ"
-JOE_DIST_SLUG  = "17809259732490098322VkM"
-TOBY_ID = 140768
-JOE_ID  = 143107
+TOBY_DIST = "17798857082070098322oYJ"
+JOE_DIST  = "17809259732490098322VkM"
+TOBY_ID   = 140768
+JOE_ID    = 143107
 
-def rc_get(path, params=None):
-    r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
-                     params=params or {}, timeout=30)
-    print(f"  GET {path} → {r.status_code}")
+# Known stage IDs
+STAGES = {537163:"CV Sent", 537164:"1st Interviews",
+          537165:"Further Interviews", 537166:"Final Interviews", 8:"Placed"}
+
+def probe(label, path, params):
+    print(f"\n=== {label} ===")
+    r = requests.get(f"{BASE_URL}{path}", headers=HEADERS, params=params, timeout=30)
+    print(f"  status: {r.status_code}")
     if r.status_code != 200:
-        print(f"  body: {r.text[:200]}")
+        print(f"  body: {r.text[:300]}")
         return {}
-    body = r.json()
-    print(f"  keys: {list(body.keys())}")
-    # Print any count-like fields
-    for k in ["total","total_count","returned_count","from","to","per_page","current_page"]:
-        if k in body:
-            print(f"  {k}: {body[k]}")
-    return body
+    b = r.json()
+    print(f"  keys: {list(b.keys())}")
+    for k in ["total","total_count","returned_count","from","to","per_page"]:
+        if k in b:
+            print(f"  {k}: {b[k]}")
+    data = b.get("data", b.get("candidates", b.get("assigned_candidates", [])))
+    print(f"  records in data: {len(data)}")
+    if data:
+        print(f"  first record keys: {list(data[0].keys())[:10]}")
+    return b
 
 if __name__ == "__main__":
     if not API_KEY:
-        print("ERROR: key not set"); sys.exit(1)
+        print("ERROR"); sys.exit(1)
 
-    print("=== Test: Toby dist job candidates (page 1 only) ===")
-    rc_get(f"/jobs/{TOBY_DIST_SLUG}/candidates", {"limit": 1})
+    # Test 1: candidates filtered by job_slug
+    probe("Candidates with job_slug (Toby dist)",
+          "/candidates", {"job_slug": TOBY_DIST, "limit": 1})
 
-    print("\n=== Test: Toby dist job candidates - assigned_candidates key ===")
-    b = rc_get(f"/jobs/{TOBY_DIST_SLUG}/candidates", {"limit": 1})
-    print(f"  'data' length: {len(b.get('data',[]))}")
-    print(f"  'assigned_candidates' length: {len(b.get('assigned_candidates',[]))}")
+    # Test 2: candidates filtered by job_id (slug as id)
+    probe("Candidates with job_id",
+          "/candidates", {"job_id": TOBY_DIST, "limit": 1})
 
-    print("\n=== Test: Jobs for Toby (owner_id + job_status=1) ===")
-    rc_get("/jobs", {"owner_id": TOBY_ID, "job_status": "1", "limit": 5})
+    # Test 3: single job endpoint
+    probe("Single job GET", f"/jobs/{TOBY_DIST}", {})
 
-    print("\n=== Test: Jobs for Toby (no status filter) ===")
-    rc_get("/jobs", {"owner_id": TOBY_ID, "limit": 5})
+    # Test 4: candidates for a stage
+    probe("Candidates at CV Sent stage",
+          "/candidates", {"status_id": 537163, "limit": 1})
 
-    print("\n=== Test: Jobs with no filter ===")
-    b2 = rc_get("/jobs", {"limit": 5})
-    jobs = b2.get("data", [])
-    print(f"  jobs in data: {len(jobs)}")
-    for j in jobs[:3]:
-        print(f"    - {j.get('name')} | slug: {j.get('slug','')[:20]}")
+    # Test 5: candidates owned by Toby at a stage
+    probe("Candidates owned by Toby at CV Sent",
+          "/candidates", {"owner_id": TOBY_ID, "status_id": 537163, "limit": 1})
 
-    # Write placeholder
+    # Test 6: candidates with current_stage filter
+    probe("Candidates with current_stage=CV Sent",
+          "/candidates", {"current_stage": "CV Sent", "limit": 1})
+
+    # Test 7: all candidates limit 1 — just to confirm total field exists
+    probe("All candidates (limit 1)",
+          "/candidates", {"limit": 1})
+
+    # Test 8: meetings total without owner
+    probe("Meetings (limit 1, no filter)",
+          "/meetings", {"limit": 1})
+
+    # Test 9: meetings for Toby with date filter
+    probe("Meetings Toby with date filter",
+          "/meetings", {"owner_id": TOBY_ID, "starting_from": "2026-07-01",
+                        "starting_to": "2026-08-04", "limit": 1})
+
     out = Path("docs"); out.mkdir(exist_ok=True)
-    (out / "index.html").write_text("<html><body><h1>Diagnostic run</h1></body></html>")
+    (out / "index.html").write_text("<html><body><h1>Diagnostic</h1></body></html>")
     print("\nDone")
