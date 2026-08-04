@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Timberseed Dashboard Generator
-RecruitCRM API uses Laravel pagination: data in 'data' key, 'next_page_url' for more pages.
+RecruitCRM API: data in 'data' key, pagination via 'next_page_url'.
 """
 
 import json, os, sys
@@ -40,68 +40,54 @@ def rc_get(path, params=None):
     r.raise_for_status()
     return r.json()
 
-def paginate(path, params, label=""):
-    """Laravel-style pagination: data in 'data', continue while next_page_url exists."""
+def fetch_meetings(owner_id):
+    """
+    Fetch meetings with date filter. RecruitCRM returns data in 'data' key.
+    Meetings are sorted newest-first, so we stop when we pass the cutoff.
+    """
+    end   = datetime.now(timezone.utc)
+    start = end - timedelta(days=DAYS_BACK)
+    cutoff = start.date().isoformat()
+
     out, page = [], 1
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).date().isoformat()
+    params = {
+        "owner_id":      owner_id,
+        "starting_from": start.strftime("%Y-%m-%d"),
+        "starting_to":   end.strftime("%Y-%m-%d"),
+        "limit":         100,
+    }
+
     while True:
-        body = rc_get(path, {**params, "page": page, "limit": 100})
+        body  = rc_get("/meetings", {**params, "page": page})
         batch = body.get("data", [])
-        # filter to cutoff date
-        in_range = [m for m in batch
-                    if (m.get("start_date") or "9999")[:10] >= cutoff]
-        out.extend(in_range)
-        print(f"  {label} p{page}: {len(batch)} total, {len(in_range)} in range, running total: {len(out)}", flush=True)
-        # stop if we've gone past the cutoff or no more pages
-        oldest = min(((m.get("start_date") or "9999")[:10] for m in batch), default="9999")
-        if oldest < cutoff:
-            print(f"  reached cutoff at p{page}, stopping")
+        print(f"  meetings {owner_id} p{page}: {len(batch)} returned", flush=True)
+
+        if not batch:
             break
+
+        # Filter to date range in case server ignores the params
+        in_range = [m for m in batch
+                    if (m.get("start_date") or "")[:10] >= cutoff]
+        out.extend(in_range)
+
+        # Stop if oldest meeting in this page is before cutoff
+        oldest = min((m.get("start_date") or "")[:10] for m in batch)
+        if oldest < cutoff:
+            print(f"  reached cutoff ({oldest} < {cutoff}), stopping")
+            break
+
         if not body.get("next_page_url"):
             break
+
+        # Safety cap: max 20 pages per consultant (~2000 meetings)
+        if page >= 20:
+            print(f"  hit page cap (20), stopping")
+            break
+
         page += 1
+
+    print(f"  total in range: {len(out)}")
     return out
-
-def fetch_meetings(owner_id):
-    return paginate("/meetings", {"owner_id": owner_id}, f"meetings {owner_id}")
-
-def fetch_pipeline(owner_id):
-    """Owned candidates at key stages."""
-    STAGE_IDS = {537163:"CV Sent", 537164:"1st Interviews",
-                 537165:"Further Interviews", 537166:"Final Interviews", 8:"Placed"}
-    STAGE_ORDER = ["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"]
-
-    # Get owned candidates
-    owned_raw = paginate("/candidates", {"owner_id": owner_id}, f"candidates {owner_id}")
-    owned = {c.get("slug") for c in owned_raw if c.get("slug")}
-    print(f"  owned: {len(owned)}")
-
-    # Get active jobs
-    try:
-        jobs_body = rc_get("/jobs", {"owner_id": owner_id, "job_status": "1", "limit": 50})
-        jobs = jobs_body.get("data", [])
-    except Exception as e:
-        print(f"  jobs error: {e}"); return []
-
-    pipeline = []
-    stage_param = ",".join(str(s) for s in STAGE_IDS)
-    for job in jobs:
-        slug = job.get("slug")
-        if not slug: continue
-        try:
-            cands = rc_get(f"/jobs/{slug}/candidates",
-                           {"limit": 100, "status_id": stage_param}).get("data", [])
-        except Exception as e:
-            print(f"  job {slug[:10]} error: {e}"); continue
-        for c in cands:
-            if c.get("candidate_slug") in owned:
-                pipeline.append({
-                    "name": f"{c.get('first_name','')} {c.get('last_name','')}".strip(),
-                    "stage": c.get("status_label",""),
-                    "stage_date": (c.get("stage_date") or "")[:10],
-                    "job": job.get("name",""),
-                })
-    return pipeline
 
 def classify(meetings, pattern):
     out = []
@@ -120,7 +106,6 @@ def fetch_all():
         meetings = classify(raw, c["pattern"])
         calls    = sum(1 for m in meetings if m["is_call"])
         print(f"  calls classified: {calls}")
-        pipeline = fetch_pipeline(c["owner_id"]) if c["role"] == "Consultant" else []
         data["consultants"].append({
             "name":          c["name"],
             "initials":      c["initials"],
@@ -128,19 +113,16 @@ def fetch_all():
             "meeting_label": c["label"],
             "meeting_note":  c["note"],
             "meetings":      meetings,
-            "pipeline":      pipeline,
+            "pipeline":      [],
         })
     return data
 
 def build_html(data):
     dj = json.dumps(data, ensure_ascii=False)
-    SC = {"CV Sent":"#534AB7","1st Interviews":"#185FA5",
-          "Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"}
-    SO = ["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"]
     return f"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Timberseed · Dashboard</title>
+<title>Timberseed \u00b7 Dashboard</title>
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{--p:#534AB7;--pm:#7F77DD;--pl:#EEEDFE;--t:#0f172a;--t2:#475569;--t3:#94a3b8;
@@ -183,14 +165,6 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .mb:hover{{background:var(--p)}}
 .mbn{{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--t2);white-space:nowrap}}
 .mx{{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:3px}}
-.fn{{display:flex;flex-direction:column;gap:6px}}
-.fr{{display:flex;align-items:center;gap:8px}}
-.fl{{width:130px;font-size:12px;color:var(--t2);flex-shrink:0}}
-.ft{{flex:1;height:18px;background:var(--bg);border-radius:4px;overflow:hidden}}
-.ff{{height:100%;border-radius:4px;transition:width .4s}}
-.fnum{{width:24px;font-size:13px;font-weight:700;text-align:right}}
-.fnames{{padding-left:138px;font-size:11px;color:var(--t3);margin-top:1px;margin-bottom:2px;line-height:1.4}}
-.nodata{{font-size:12px;color:var(--t3);font-style:italic}}
 .note{{font-size:11px;color:var(--t3);border-top:1px solid var(--b);padding-top:10px;line-height:1.5}}
 .fn-note{{font-size:12px;color:var(--t2);line-height:1.6;background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}}
 </style></head><body>
@@ -216,14 +190,9 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
   </div>
   <div class="ri" id="ri"></div>
 </div>
-<main class="main">
-  <div class="sg" id="sg"></div>
-  <div class="grid" id="grid"></div>
-</main>
+<main class="main"><div class="sg" id="sg"></div><div class="grid" id="grid"></div></main>
 <script>
 const D={dj};
-const SC={json.dumps(SC)};
-const SO={json.dumps(SO)};
 const fGB=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}});
 const fS=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}});
 function inR(ds,s,e){{if(!ds)return false;const d=new Date(ds);d.setHours(12);return d>=s&&d<=e;}}
@@ -234,13 +203,11 @@ function render(s,e){{
   document.getElementById("ri").textContent=fGB(s)+" \u2013 "+fGB(e);
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
-  let tC=0,tP=0,tPl=0;
-  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;tP+=r.pipe;tPl+=r.placed;return r;}});
+  let tC=0;
+  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;return r;}});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
   document.getElementById("sg").innerHTML=`
-    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants</div></div>
-    <div class="sc"><div class="sl">At key stages</div><div class="sv">${{tP}}</div><div class="ss">Owned pipeline</div></div>
-    <div class="sc"><div class="sl">Placed</div><div class="sv">${{tPl}}</div><div class="ss">In period</div></div>`;
+    <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants combined</div></div>`;
 }}
 function bC(c,s,e){{
   const eod=new Date(e);eod.setHours(23,59,59,999);
@@ -258,30 +225,10 @@ function bC(c,s,e){{
       onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">
       ${{num}}</div>`;
   }}).join("");
-  const byS={{}};SO.forEach(st=>byS[st]=[]);
-  c.pipeline.filter(p=>inR(p.stage_date,s,eod)).forEach(p=>{{if(byS[p.stage])byS[p.stage].push(p);}});
-  const pipe=c.pipeline.filter(p=>inR(p.stage_date,s,eod)).length;
-  const placed=byS["Placed"]?.length||0;
-  const mxP=Math.max(...SO.map(st=>byS[st].length),1);
-  const funnel=SO.map(st=>{{
-    const ca=byS[st];const pct=Math.round((ca.length/mxP)*100);
-    const nm=ca.slice(0,4).map(p=>{{
-      const pts=p.name.split(" ");const sh=pts[0]+(pts[1]?" "+pts[1][0]+".":"");
-      const pd=p.stage_date?new Date(p.stage_date):null;
-      return sh+(pd?" ("+pd.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}})+")":"");
-    }}).join(" \u00b7 ");
-    return `<div class="fr"><div class="fl">${{st}}</div>
-      <div class="ft"><div class="ff" style="width:${{pct}}%;background:${{SC[st]}}"></div></div>
-      <div class="fnum">${{ca.length}}</div></div>
-      ${{nm?`<div class="fnames">${{nm}}</div>`:""}}`;
-  }}).join("");
   const isFinn=c.name==="Finn Phillips";
   const body=isFinn?
     `<div class="fn-note">Finn joined Jul 2026. BD calls logged as tasks in RecruitCRM. 1 confirmed external prospect meeting (James Pickering \u00b7 Unily).</div>`:
-    `<div><div class="secl">Owned candidates at key stages</div>
-      ${{pipe===0?`<div class="nodata">No owned candidates at key stages in this period.</div>`:
-        `<div class="fn">${{funnel}}</div>`}}</div>
-    <div class="note">Pipeline covers active client jobs. Stage dates reflect when candidate last moved.</div>`;
+    `<div class="note">Intro calls identified by scheduler title pattern.</div>`;
   const html=`<div class="card">
     <div class="ch"><div class="av">${{c.initials}}</div>
       <div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div>
@@ -296,7 +243,7 @@ function bC(c,s,e){{
         </div></div>
       ${{body}}
     </div></div>`;
-  return {{html,calls,pipe,placed}};
+  return {{html,calls}};
 }}
 function applyPreset(d){{
   const {{s,e}}=bR(d);
@@ -319,7 +266,6 @@ if __name__ == "__main__":
     if not API_KEY:
         print("ERROR: RECRUITCRM_API_KEY not set"); sys.exit(1)
     print(f"API key: {API_KEY[:8]}... ({len(API_KEY)} chars)", flush=True)
-    print("Fetching from RecruitCRM...", flush=True)
     data = fetch_all()
     out = Path("docs"); out.mkdir(exist_ok=True)
     (out / "index.html").write_text(build_html(data), encoding="utf-8")
