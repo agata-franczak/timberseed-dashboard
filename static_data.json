@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T14:27:49.304271",
+  "updated_at": "2026-08-10T14:33:53.349366+00:00",
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
@@ -865,6 +865,92 @@
   },
   "open_jobs": [
     {
+      "name": "Charlotte SDR",
+      "owner": "Toby Ranson",
+      "location": "Charlotte, US",
+      "candidates_in_process": 25,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 24
+        },
+        {
+          "stage": "2nd call",
+          "count": 1
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ],
+      "coverage": "partial",
+      "coverage_note": "~2100 of an estimated 3000+ candidates analyzed",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+    },
+    {
+      "name": "SDR (London)",
+      "owner": "Toby Ranson",
+      "location": "London, UK",
+      "candidates_in_process": 18,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 16
+        },
+        {
+          "stage": "2nd call",
+          "count": 1
+        },
+        {
+          "stage": "CV Sent",
+          "count": 1
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+    },
+    {
       "name": "Dutch SDR",
       "owner": "Jonathan Dusse",
       "location": "London, UK",
@@ -902,7 +988,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "partial",
+      "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "French SDR",
@@ -942,7 +1031,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "Grad SDR (Southwark)",
@@ -982,25 +1074,28 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
-      "name": "SDR (London)",
+      "name": "Grad SDR (Manchester)",
       "owner": "Toby Ranson",
-      "location": "London, UK",
+      "location": "Manchester, UK",
       "candidates_in_process": 12,
       "stage_breakdown": [
         {
           "stage": "Call",
-          "count": 12
+          "count": 8
         },
         {
           "stage": "2nd call",
-          "count": 0
+          "count": 2
         },
         {
           "stage": "CV Sent",
-          "count": 0
+          "count": 2
         },
         {
           "stage": "1st Interviews",
@@ -1022,7 +1117,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "partial",
+      "coverage_note": "~600 of an estimated 600+ candidates analyzed (still truncated)",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "Care Coordinator (edyn.care)",
@@ -1062,7 +1160,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "SDR",
@@ -1102,47 +1203,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
-    },
-    {
-      "name": "Grad SDR (Manchester)",
-      "owner": "Toby Ranson",
-      "location": "Manchester, UK",
-      "candidates_in_process": 7,
-      "stage_breakdown": [
-        {
-          "stage": "Call",
-          "count": 4
-        },
-        {
-          "stage": "2nd call",
-          "count": 1
-        },
-        {
-          "stage": "CV Sent",
-          "count": 2
-        },
-        {
-          "stage": "1st Interviews",
-          "count": 0
-        },
-        {
-          "stage": "Further Interviews",
-          "count": 0
-        },
-        {
-          "stage": "Final Interviews",
-          "count": 0
-        },
-        {
-          "stage": "Offer",
-          "count": 0
-        },
-        {
-          "stage": "Placed",
-          "count": 0
-        }
-      ]
+      ],
+      "coverage": "partial",
+      "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "SDR (Xelix)",
@@ -1182,7 +1246,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "partial",
+      "coverage_note": "First ~400 candidates only; job has more beyond that, not re-swept",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "German BDR",
@@ -1222,7 +1289,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "English BDR",
@@ -1262,47 +1332,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
-    },
-    {
-      "name": "Charlotte SDR",
-      "owner": "Toby Ranson",
-      "location": "Charlotte, US",
-      "candidates_in_process": 3,
-      "stage_breakdown": [
-        {
-          "stage": "Call",
-          "count": 3
-        },
-        {
-          "stage": "2nd call",
-          "count": 0
-        },
-        {
-          "stage": "CV Sent",
-          "count": 0
-        },
-        {
-          "stage": "1st Interviews",
-          "count": 0
-        },
-        {
-          "stage": "Further Interviews",
-          "count": 0
-        },
-        {
-          "stage": "Final Interviews",
-          "count": 0
-        },
-        {
-          "stage": "Offer",
-          "count": 0
-        },
-        {
-          "stage": "Placed",
-          "count": 0
-        }
-      ]
+      ],
+      "coverage": "partial",
+      "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "Exp SDR (Munich)",
@@ -1342,7 +1375,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "German SDR",
@@ -1382,7 +1418,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "partial",
+      "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "Ent AE",
@@ -1422,7 +1461,10 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
       "name": "Travel Account Executive",
@@ -1462,7 +1504,11 @@
           "stage": "Placed",
           "count": 0
         }
-      ]
+      ],
+      "coverage": "complete",
+      "coverage_note": null,
+      "last_swept": "2026-08-10T14:33:53.349366+00:00"
     }
-  ]
+  ],
+  "open_jobs_updated_at": "2026-08-10T14:33:53.349366+00:00"
 }
