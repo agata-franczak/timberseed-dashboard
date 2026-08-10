@@ -165,6 +165,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .jt tr:last-child td{{border-bottom:none}}
 .jt .jn{{font-weight:600;color:var(--t)}}
 .jt .jc{{text-align:right;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}}
+.stpill{{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin:1px 3px 1px 0;white-space:nowrap}}
 </style></head><body>
 <header class="hdr">
   <div class="logo"><div class="lm">TS</div>
@@ -189,11 +190,12 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
   <div class="ri" id="ri"></div>
 </div>
 <main class="main"><div class="sg" id="sg"></div>
-<div class="card" id="ojcard" style="margin-bottom:16px">
+<div class="grid" id="grid"></div>
+<div class="card" id="ojcard" style="margin-top:16px">
   <div class="ch"><div><div class="cn">Open Sales Jobs</div><div class="cr">All open roles on the Sales pipeline, across every owner</div></div></div>
   <div class="cb"><div class="bx" style="padding:0"><table class="jt" id="ojtable"></table></div></div>
 </div>
-<div class="grid" id="grid"></div></main>
+</main>
 <script>
 const D={dj};const SC={sc};const SO={so};
 const fGB=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}});
@@ -211,8 +213,17 @@ function render(s,e){{
   document.getElementById("td").value=e.toISOString().slice(0,10);
   const oj=D.open_jobs||[];
   document.getElementById("ojtable").innerHTML=
-    `<thead><tr><th>Job</th><th>Owner</th><th>Location</th><th style="text-align:right">In process</th></tr></thead>
-     <tbody>${{oj.map(j=>`<tr><td class="jn">${{j.name}}</td><td>${{j.owner}}</td><td class="jl">${{j.location}}</td><td class="jc">${{j.candidates_in_process}}</td></tr>`).join("")}}</tbody>`;
+    `<thead><tr><th>Job</th><th>Owner</th><th>Location</th><th>Stage breakdown</th><th style="text-align:right">Total</th></tr></thead>
+     <tbody>${{oj.map(j=>{{
+       const pills=(j.stage_breakdown||[]).map(b=>{{
+         const on=b.count>0;
+         const bg=on?SC[b.stage]+"22":"#f1f5f9";const fg=on?SC[b.stage]:"#94a3b8";const bd=on?SC[b.stage]+"55":"#e2e8f0";
+         return `<span class="stpill" style="background:${{bg}};color:${{fg}};border:1px solid ${{bd}}">${{b.stage}} ${{b.count}}</span>`;
+       }}).join(" ");
+       return `<tr><td class="jn">${{j.name}}</td><td>${{j.owner}}</td><td class="jl">${{j.location}}</td>
+         <td>${{pills}}</td>
+         <td class="jc">${{j.candidates_in_process}}</td></tr>`;
+     }}).join("")}}</tbody>`;
   let tC=0,tD=0,tP=0,tPl=0;
   const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;if(c.dist_total)tD+=c.dist_total;tP+=r.pipe;tPl+=r.placed;return r;}});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
