@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-10T10:35:48.009256+00:00",
-  "note": "Updated weekly via Claude MCP. Covers active Sales pipeline jobs. Stage dates = when candidate entered current stage.",
+  "updated_at": "2026-08-10T11:56:50.833411+00:00",
+  "note": "Updated via full Claude MCP sweep of ALL active Toby/Joe jobs on 2026-08-10. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are shown; Assigned/Outreach/Invite/Link sent/rejected candidates are excluded. Excludes Care Coordinator (non-sales role) and Harry's connections (not a real req). Also includes 'other_consultants_pipeline' for Jonathan Dusse (2 open Sales-pipeline jobs: Dutch SDR, Travel Account Executive) — data captured for completeness but NOT part of the Toby/Joe dashboard views; Travel Account Executive has no progressed candidates yet (job is 2 days old).",
   "dist_jobs": {
     "Toby Ranson": {
       "total": 128,
@@ -32,342 +32,574 @@
   "pipeline": {
     "Toby Ranson": [
       {
-        "name": "Arthur Thomas",
-        "stage": "CV Sent",
-        "stage_date": "2026-08-03",
-        "job": "Grad SDR"
+        "name": "Benjamin Goodrick",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-10",
+        "job": "German BDR"
+      },
+      {
+        "name": "Daniel Agyei",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-10",
+        "job": "German BDR"
+      },
+      {
+        "name": "JASON MACK",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "German BDR"
+      },
+      {
+        "name": "Lorenz Thümmler",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "German BDR"
+      },
+      {
+        "name": "Nevia Schultheiss",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "German BDR"
+      },
+      {
+        "name": "Harry Welch",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Jack Wells",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Samuel Corner",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Julia Dalton",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Fred Strange",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Rishika Mahajan",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Emma Smith",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Andrea G.",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Georgiy Savenko",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
+      },
+      {
+        "name": "Andrew Adam",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
       },
       {
         "name": "Harry Farr",
-        "stage": "CV Sent",
-        "stage_date": "2026-08-09",
-        "job": "Grad SDR"
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Southwark)"
       },
       {
-        "name": "Ed Kelly",
-        "stage": "CV Sent",
-        "stage_date": "2026-08-06",
-        "job": "English BDR"
+        "name": "Brittainy Wright",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Charlotte SDR"
       },
       {
-        "name": "Christopher Larter",
-        "stage": "CV Sent",
-        "stage_date": "2026-08-05",
-        "job": "English BDR"
+        "name": "Thomas Alvarez",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Charlotte SDR"
       },
       {
-        "name": "Kazadi Mpinga",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-14",
-        "job": "French BDR"
+        "name": "James Meanor",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Charlotte SDR"
       },
       {
-        "name": "Lea Riviere",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-11",
-        "job": "French BDR"
+        "name": "Tingchin Cai",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Freddie Gebbett",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-14",
-        "job": "French BDR"
+        "name": "Panayiotis Shiacolas",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Montse Herrera",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-15",
-        "job": "French BDR"
+        "name": "Darcy Salmon",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Imran Safah",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-22",
-        "job": "French BDR"
+        "name": "Himat N.",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Karl El Asmar",
-        "stage": "CV Sent",
-        "stage_date": "2026-08-06",
-        "job": "French BDR"
+        "name": "Hassan Noor",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Will Jones",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-13",
-        "job": "French BDR"
+        "name": "Alex Brookman",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Anna Traoré",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-15",
-        "job": "French BDR"
+        "name": "Efiuje Ojo",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
       },
       {
-        "name": "Billy Tchouague",
+        "name": "Raj Jagtap",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Gregorio Gariazzo",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Lydia Paraskevopoulou",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "James Rumsey",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Asher Williams",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Clara Harley",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Isobel Kelly",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Celina Pereira",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Edward Bullock",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Charlie Thursfield",
         "stage": "CV Sent",
-        "stage_date": "2026-08-07",
-        "job": "French BDR"
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Elisabeth Hughes",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "David Riseborough",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Lisa Eisheuer",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "German SDR"
+      },
+      {
+        "name": "David Heisler",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "German SDR"
       },
       {
         "name": "Scarlett Joyce",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-20",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
         "job": "English BDR"
       },
       {
         "name": "Ben Peters",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-20",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
         "job": "English BDR"
       },
       {
         "name": "Rose Grundon",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-23",
-        "job": "English BDR"
-      },
-      {
-        "name": "Harry Welch",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-30",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Jack Wells",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-30",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Samuel Corner",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-30",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Julia Dalton",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-01",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Fred Strange",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-13",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Rishika Mahajan",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-21",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Zaakir Nauyeck",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-21",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Emma Smith",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-28",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Andrea G.",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-29",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Tashah Sweeteen",
-        "stage": "1st Interviews",
-        "stage_date": "2026-08-02",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Georgiy Savenko",
-        "stage": "1st Interviews",
-        "stage_date": "2026-08-03",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Kim Arroyo",
-        "stage": "1st Interviews",
-        "stage_date": "2026-08-04",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Rhianna-May Duffy",
-        "stage": "1st Interviews",
-        "stage_date": "2026-08-04",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Andrew Adam",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-16",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Josue Mankoto",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-14",
-        "job": "French BDR"
-      },
-      {
-        "name": "Arsène Roulmann",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-15",
-        "job": "French BDR"
-      },
-      {
-        "name": "Elsa Ollivrin",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-21",
-        "job": "French BDR"
-      },
-      {
-        "name": "Montasser Chebbah",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-17",
-        "job": "French BDR"
-      },
-      {
-        "name": "Hassan Domiaty",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-24",
-        "job": "French BDR"
-      },
-      {
-        "name": "Montse Despradel",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-16",
-        "job": "French BDR"
-      },
-      {
-        "name": "Tudor Simionescu",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-29",
-        "job": "French BDR"
-      },
-      {
-        "name": "Tara Sarper",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-22",
-        "job": "French BDR"
-      },
-      {
-        "name": "Owen Meyer",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-22",
-        "job": "French BDR"
-      },
-      {
-        "name": "Jeremy Caracciolo",
-        "stage": "Further Interviews",
-        "stage_date": "2026-08-04",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Max Fraine",
-        "stage": "Further Interviews",
+        "stage": "2nd call",
         "stage_date": "2026-08-10",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Archie M. Macdonald",
-        "stage": "Final Interviews",
-        "stage_date": "2026-07-28",
         "job": "English BDR"
       },
       {
-        "name": "Christian Morgan-Hughes",
-        "stage": "Final Interviews",
-        "stage_date": "2026-07-30",
-        "job": "French BDR"
-      },
-      {
-        "name": "(3 placements)",
-        "stage": "Placed",
-        "stage_date": "2026-07-11",
-        "job": "Grad SDR"
+        "name": "Archie Maxwell Macdonald",
+        "stage": "Offer",
+        "stage_date": "2026-08-10",
+        "job": "English BDR"
       }
     ],
     "Joe Leonard": [
       {
-        "name": "Alex Wooliscroft",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-02",
-        "job": "Ent AE"
+        "name": "Valentin Buehler",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Exp SDR (Munich)"
       },
       {
-        "name": "Mazen Ibrahim",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-05",
-        "job": "Ent AE"
+        "name": "Salma Agharbi",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Exp SDR (Munich)"
       },
       {
-        "name": "Anthony Scala",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-09",
-        "job": "Ent AE"
+        "name": "Alexander Ivanov",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Exp SDR (Munich)"
       },
       {
-        "name": "Mac Boyle",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-07",
-        "job": "Ent AE"
+        "name": "George Davis",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
       },
       {
-        "name": "Joseph Feterman",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-09",
-        "job": "Ent AE"
+        "name": "Alexandra Noble",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
       },
       {
-        "name": "Elizabeth Bolke",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-13",
-        "job": "Ent AE"
+        "name": "Marcus Meager",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
+      },
+      {
+        "name": "Max Robertson",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
+      },
+      {
+        "name": "Deya Demerdzhieva",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
+      },
+      {
+        "name": "Wilf Johnson",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
+      },
+      {
+        "name": "Oliver Meiklejohn",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
+      },
+      {
+        "name": "Harrison Lane",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR"
       },
       {
         "name": "Tom Crumley",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-08",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
         "job": "Ent AE"
       },
       {
         "name": "Tyler Jennings",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-19",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
         "job": "Ent AE"
       },
       {
-        "name": "David Swissman",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-21",
-        "job": "Ent AE"
+        "name": "Leah Farrant",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (Xelix)"
       },
       {
-        "name": "Justin Mainzer",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-19",
-        "job": "Ent AE"
+        "name": "Adam Fishlock",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (Xelix)"
       },
       {
-        "name": "Zachary Austin",
-        "stage": "CV Sent",
-        "stage_date": "2026-06-18",
-        "job": "SDR"
+        "name": "Elliott Curry",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (Xelix)"
       },
       {
-        "name": "Parris Torres",
+        "name": "Guy Halstead",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (Xelix)"
+      },
+      {
+        "name": "Charlotte Dubail",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (Xelix)"
+      },
+      {
+        "name": "Simran Sandhu",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "SDR (Xelix)"
+      },
+      {
+        "name": "Kévin Stenzel",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Orlando Goffin",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Inès Smatti",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Luca Campo",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Nadia Bastajib",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Vasco Loyola",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Murdoch Clark",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Henoch B",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Emile O'Dwyer",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Charlotte Scott",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Tamara Fabre",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Tara Sarper",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Ella Goldstein",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Owen Meyer",
         "stage": "1st Interviews",
-        "stage_date": "2026-07-19",
-        "job": "Ent AE"
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      },
+      {
+        "name": "Ladislas Cantarovich",
+        "stage": "Final Interviews",
+        "stage_date": "2026-08-10",
+        "job": "French SDR"
+      }
+    ]
+  },
+  "other_consultants_pipeline": {
+    "Jonathan Dusse": [
+      {
+        "name": "Sophie Berry",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Annie Chesover",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Alexandra Kaninda",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Amber Cumpstone",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Isabel Remers",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Chima Effiom",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Cem Verploeg",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Juliette van Spreuwel",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Hilde van Son",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Meike Lenting",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Anne Ponsteen",
+        "stage": "Call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Ozair Edris",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Erik van de Meent",
+        "stage": "2nd call",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Asad Gattab",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Beau Kunst",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
+      },
+      {
+        "name": "Yulia Saenz Miller",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-10",
+        "job": "Dutch SDR"
       }
     ]
   }
