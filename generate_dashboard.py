@@ -71,7 +71,7 @@ def classify(meetings, pattern):
 
 def fetch_all(static):
     now  = datetime.now(timezone.utc)
-    data = {"generated_at": now.isoformat(), "consultants": []}
+    data = {"generated_at": now.isoformat(), "consultants": [], "open_jobs": static.get("open_jobs", [])}
     for c in CONSULTANTS:
         print(f"\n▶ {c['name']}", flush=True)
         raw      = fetch_meetings(c["owner_id"])
@@ -159,6 +159,12 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .nodata{{font-size:12px;color:var(--t3);font-style:italic}}
 .note{{font-size:11px;color:var(--t3);border-top:1px solid var(--b);padding-top:10px;line-height:1.5}}
 .fn-note{{font-size:12px;color:var(--t2);line-height:1.6;background:var(--pl);border-radius:var(--rs);padding:.75rem 1rem}}
+.jt{{width:100%;border-collapse:collapse;font-size:12px}}
+.jt th{{text-align:left;font-weight:600;color:var(--t3);text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:8px 12px;border-bottom:1px solid var(--b)}}
+.jt td{{padding:8px 12px;border-bottom:1px solid var(--b);color:var(--t2)}}
+.jt tr:last-child td{{border-bottom:none}}
+.jt .jn{{font-weight:600;color:var(--t)}}
+.jt .jc{{text-align:right;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}}
 </style></head><body>
 <header class="hdr">
   <div class="logo"><div class="lm">TS</div>
@@ -182,7 +188,12 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
   </div>
   <div class="ri" id="ri"></div>
 </div>
-<main class="main"><div class="sg" id="sg"></div><div class="grid" id="grid"></div></main>
+<main class="main"><div class="sg" id="sg"></div>
+<div class="card" id="ojcard" style="margin-bottom:16px">
+  <div class="ch"><div><div class="cn">Open Sales Jobs</div><div class="cr">All open roles on the Sales pipeline, across every owner</div></div></div>
+  <div class="cb"><div class="bx" style="padding:0"><table class="jt" id="ojtable"></table></div></div>
+</div>
+<div class="grid" id="grid"></div></main>
 <script>
 const D={dj};const SC={sc};const SO={so};
 const fGB=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}});
@@ -198,6 +209,10 @@ function render(s,e){{
   document.getElementById("ri").textContent=fGB(s)+" \u2013 "+fGB(e);
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
+  const oj=D.open_jobs||[];
+  document.getElementById("ojtable").innerHTML=
+    `<thead><tr><th>Job</th><th>Owner</th><th>Location</th><th style="text-align:right">In process</th></tr></thead>
+     <tbody>${{oj.map(j=>`<tr><td class="jn">${{j.name}}</td><td>${{j.owner}}</td><td class="jl">${{j.location}}</td><td class="jc">${{j.candidates_in_process}}</td></tr>`).join("")}}</tbody>`;
   let tC=0,tD=0,tP=0,tPl=0;
   const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;if(c.dist_total)tD+=c.dist_total;tP+=r.pipe;tPl+=r.placed;return r;}});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
