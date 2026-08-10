@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T14:33:53.349366+00:00",
+  "updated_at": "2026-08-10T14:45:03.535860",
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
@@ -500,6 +500,78 @@
         "stage": "2nd call",
         "stage_date": "2026-06-25",
         "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Luca Gugolz",
+        "stage": "Call",
+        "stage_date": "2026-07-14",
+        "job": "German SDR"
+      },
+      {
+        "name": "Lauraina A.",
+        "stage": "Call",
+        "stage_date": "2026-04-28",
+        "job": "German SDR"
+      },
+      {
+        "name": "Dalia Gelfer",
+        "stage": "Call",
+        "stage_date": "2026-07-28",
+        "job": "English BDR"
+      },
+      {
+        "name": "Sam Hind",
+        "stage": "Call",
+        "stage_date": "2026-07-30",
+        "job": "English BDR"
+      },
+      {
+        "name": "Muhammad Talha Mirza",
+        "stage": "Call",
+        "stage_date": "2026-07-15",
+        "job": "English BDR"
+      },
+      {
+        "name": "Keji Adebari",
+        "stage": "Call",
+        "stage_date": "2026-08-04",
+        "job": "English BDR"
+      },
+      {
+        "name": "Tommy Boylan",
+        "stage": "Call",
+        "stage_date": "2026-07-16",
+        "job": "English BDR"
+      },
+      {
+        "name": "Dawn Ruvarashe Gatsi",
+        "stage": "2nd call",
+        "stage_date": "2026-07-17",
+        "job": "English BDR"
+      },
+      {
+        "name": "Sapphire Thomas",
+        "stage": "Call",
+        "stage_date": "2026-07-29",
+        "job": "English BDR"
+      },
+      {
+        "name": "Rithik Kumar",
+        "stage": "Call",
+        "stage_date": "2026-08-04",
+        "job": "English BDR"
+      },
+      {
+        "name": "YUXUAN HE",
+        "stage": "Call",
+        "stage_date": "2026-07-29",
+        "job": "English BDR"
+      },
+      {
+        "name": "JOSHUA AYRES",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-27",
+        "job": "English BDR"
       }
     ],
     "Joe Leonard": [
@@ -760,6 +832,198 @@
         "stage": "1st Interviews",
         "stage_date": "2026-07-31",
         "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Arun Mohideen",
+        "stage": "Call",
+        "stage_date": "2025-09-23",
+        "job": "SDR"
+      },
+      {
+        "name": "Lara Tapp",
+        "stage": "Call",
+        "stage_date": "2025-08-28",
+        "job": "SDR"
+      },
+      {
+        "name": "Miguel Patricio",
+        "stage": "Call",
+        "stage_date": "2025-09-23",
+        "job": "SDR"
+      },
+      {
+        "name": "Marija Maksimova",
+        "stage": "Call",
+        "stage_date": "2025-09-11",
+        "job": "SDR"
+      },
+      {
+        "name": "Daniel Egerton",
+        "stage": "Call",
+        "stage_date": "2025-09-12",
+        "job": "SDR"
+      },
+      {
+        "name": "Tom Khouri",
+        "stage": "Call",
+        "stage_date": "2025-10-07",
+        "job": "SDR"
+      },
+      {
+        "name": "Jon Leggett",
+        "stage": "Call",
+        "stage_date": "2026-02-09",
+        "job": "SDR"
+      },
+      {
+        "name": "Gabriele Bartkeviciute",
+        "stage": "Call",
+        "stage_date": "2025-09-24",
+        "job": "SDR"
+      },
+      {
+        "name": "Regisa Sala",
+        "stage": "Call",
+        "stage_date": "2025-10-02",
+        "job": "SDR"
+      },
+      {
+        "name": "Charlie Mace",
+        "stage": "Call",
+        "stage_date": "2025-10-02",
+        "job": "SDR"
+      },
+      {
+        "name": "Anjola Ogundeji",
+        "stage": "Call",
+        "stage_date": "2025-10-02",
+        "job": "SDR"
+      },
+      {
+        "name": "Nicholas Mantafounis",
+        "stage": "Call",
+        "stage_date": "2025-10-02",
+        "job": "SDR"
+      },
+      {
+        "name": "Kyle Robinson",
+        "stage": "Call",
+        "stage_date": "2025-10-06",
+        "job": "SDR"
+      },
+      {
+        "name": "Haider Siddiq",
+        "stage": "Call",
+        "stage_date": "2025-10-06",
+        "job": "SDR"
+      },
+      {
+        "name": "Daisy Steel",
+        "stage": "Call",
+        "stage_date": "2025-10-17",
+        "job": "SDR"
+      },
+      {
+        "name": "Libby Rhodes",
+        "stage": "Call",
+        "stage_date": "2025-10-22",
+        "job": "SDR"
+      },
+      {
+        "name": "Rohan Redican",
+        "stage": "Call",
+        "stage_date": "2025-12-18",
+        "job": "SDR"
+      },
+      {
+        "name": "Lee Dubar",
+        "stage": "2nd call",
+        "stage_date": "2026-07-21",
+        "job": "SDR"
+      },
+      {
+        "name": "Jake Coltman",
+        "stage": "Call",
+        "stage_date": "2025-10-22",
+        "job": "SDR"
+      },
+      {
+        "name": "Charlie Crawley",
+        "stage": "Call",
+        "stage_date": "2025-11-13",
+        "job": "SDR"
+      },
+      {
+        "name": "Jason Takavarasha",
+        "stage": "Call",
+        "stage_date": "2025-11-14",
+        "job": "SDR"
+      },
+      {
+        "name": "Luke Courtis-Pond",
+        "stage": "Call",
+        "stage_date": "2025-12-04",
+        "job": "SDR"
+      },
+      {
+        "name": "Phillip Lala",
+        "stage": "Call",
+        "stage_date": "2026-01-22",
+        "job": "SDR"
+      },
+      {
+        "name": "Hajera Sama",
+        "stage": "Call",
+        "stage_date": "2025-11-21",
+        "job": "SDR"
+      },
+      {
+        "name": "Aaron Gordon",
+        "stage": "Call",
+        "stage_date": "2026-02-09",
+        "job": "SDR"
+      },
+      {
+        "name": "Ben van Aurich",
+        "stage": "Call",
+        "stage_date": "2026-03-12",
+        "job": "SDR"
+      },
+      {
+        "name": "Jordan Victor",
+        "stage": "Call",
+        "stage_date": "2026-02-09",
+        "job": "SDR"
+      },
+      {
+        "name": "Josh Caulfield",
+        "stage": "Call",
+        "stage_date": "2026-02-09",
+        "job": "SDR"
+      },
+      {
+        "name": "Will Manchester",
+        "stage": "Call",
+        "stage_date": "2025-11-24",
+        "job": "SDR"
+      },
+      {
+        "name": "tasnia B.",
+        "stage": "Call",
+        "stage_date": "2026-04-08",
+        "job": "SDR (Xelix)"
+      },
+      {
+        "name": "Thomas de Gruchy",
+        "stage": "Call",
+        "stage_date": "2026-04-08",
+        "job": "SDR (Xelix)"
+      },
+      {
+        "name": "Dario Febo",
+        "stage": "Call",
+        "stage_date": "2026-04-08",
+        "job": "SDR (Xelix)"
       }
     ]
   },
@@ -989,8 +1253,8 @@
           "count": 0
         }
       ],
-      "coverage": "partial",
-      "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
+      "coverage": "complete",
+      "coverage_note": null,
       "last_swept": "2026-08-10T14:33:53.349366+00:00"
     },
     {
