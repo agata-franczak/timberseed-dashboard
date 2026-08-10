@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-04T23:45:21.978718+00:00",
-  "note": "Pipeline covers candidates at key stages within the last 90 days. Update weekly via Claude MCP.",
+  "updated_at": "2026-08-10T10:35:48.009256+00:00",
+  "note": "Updated weekly via Claude MCP. Covers active Sales pipeline jobs. Stage dates = when candidate entered current stage.",
   "dist_jobs": {
     "Toby Ranson": {
       "total": 128,
@@ -34,171 +34,339 @@
       {
         "name": "Arthur Thomas",
         "stage": "CV Sent",
-        "stage_date": "2026-07-28",
+        "stage_date": "2026-08-03",
         "job": "Grad SDR"
       },
       {
-        "name": "Harry Welch",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-24",
+        "name": "Harry Farr",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-09",
         "job": "Grad SDR"
       },
       {
-        "name": "Jack Wells",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-24",
-        "job": "Grad SDR"
+        "name": "Ed Kelly",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-06",
+        "job": "English BDR"
       },
       {
-        "name": "Samuel Corner",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-24",
-        "job": "Grad SDR"
+        "name": "Christopher Larter",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-05",
+        "job": "English BDR"
       },
       {
-        "name": "Julia Dalton",
-        "stage": "1st Interviews",
-        "stage_date": "2026-06-25",
-        "job": "Grad SDR"
+        "name": "Kazadi Mpinga",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-14",
+        "job": "French BDR"
       },
       {
-        "name": "Fred Strange",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-07",
-        "job": "Grad SDR"
+        "name": "Lea Riviere",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-11",
+        "job": "French BDR"
       },
       {
-        "name": "Rishika Mahajan",
-        "stage": "1st Interviews",
+        "name": "Freddie Gebbett",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-14",
+        "job": "French BDR"
+      },
+      {
+        "name": "Montse Herrera",
+        "stage": "CV Sent",
         "stage_date": "2026-07-15",
-        "job": "Grad SDR"
+        "job": "French BDR"
       },
       {
-        "name": "Zaakir Nauyeck",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-15",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Emma Smith",
-        "stage": "1st Interviews",
+        "name": "Imran Safah",
+        "stage": "CV Sent",
         "stage_date": "2026-07-22",
-        "job": "Grad SDR"
+        "job": "French BDR"
       },
       {
-        "name": "Andrea G.",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-23",
-        "job": "Grad SDR"
+        "name": "Karl El Asmar",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-06",
+        "job": "French BDR"
       },
       {
-        "name": "Tashah Sweeteen",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-27",
-        "job": "Grad SDR"
+        "name": "Will Jones",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-13",
+        "job": "French BDR"
       },
       {
-        "name": "Georgiy Savenko",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-28",
-        "job": "Grad SDR"
+        "name": "Anna Traoré",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-15",
+        "job": "French BDR"
       },
       {
-        "name": "Kim Arroyo",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-29",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Rhianna-May Duffy",
-        "stage": "1st Interviews",
-        "stage_date": "2026-07-29",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Jeremy Caracciolo",
-        "stage": "Further Interviews",
-        "stage_date": "2026-07-29",
-        "job": "Grad SDR"
-      },
-      {
-        "name": "Max Fraine",
-        "stage": "Further Interviews",
-        "stage_date": "2026-08-04",
-        "job": "Grad SDR"
+        "name": "Billy Tchouague",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-07",
+        "job": "French BDR"
       },
       {
         "name": "Scarlett Joyce",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-14",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-20",
         "job": "English BDR"
       },
       {
         "name": "Ben Peters",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-14",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-20",
         "job": "English BDR"
       },
       {
         "name": "Rose Grundon",
         "stage": "1st Interviews",
-        "stage_date": "2026-07-17",
+        "stage_date": "2026-07-23",
         "job": "English BDR"
+      },
+      {
+        "name": "Harry Welch",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-30",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Jack Wells",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-30",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Samuel Corner",
+        "stage": "1st Interviews",
+        "stage_date": "2026-06-30",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Julia Dalton",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-01",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Fred Strange",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-13",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Rishika Mahajan",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-21",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Zaakir Nauyeck",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-21",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Emma Smith",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-28",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Andrea G.",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-29",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Tashah Sweeteen",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-02",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Georgiy Savenko",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-03",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Kim Arroyo",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-04",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Rhianna-May Duffy",
+        "stage": "1st Interviews",
+        "stage_date": "2026-08-04",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Andrew Adam",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-16",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Josue Mankoto",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-14",
+        "job": "French BDR"
+      },
+      {
+        "name": "Arsène Roulmann",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-15",
+        "job": "French BDR"
+      },
+      {
+        "name": "Elsa Ollivrin",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-21",
+        "job": "French BDR"
+      },
+      {
+        "name": "Montasser Chebbah",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-17",
+        "job": "French BDR"
+      },
+      {
+        "name": "Hassan Domiaty",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-24",
+        "job": "French BDR"
+      },
+      {
+        "name": "Montse Despradel",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-16",
+        "job": "French BDR"
+      },
+      {
+        "name": "Tudor Simionescu",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-29",
+        "job": "French BDR"
+      },
+      {
+        "name": "Tara Sarper",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-22",
+        "job": "French BDR"
+      },
+      {
+        "name": "Owen Meyer",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-22",
+        "job": "French BDR"
+      },
+      {
+        "name": "Jeremy Caracciolo",
+        "stage": "Further Interviews",
+        "stage_date": "2026-08-04",
+        "job": "Grad SDR"
+      },
+      {
+        "name": "Max Fraine",
+        "stage": "Further Interviews",
+        "stage_date": "2026-08-10",
+        "job": "Grad SDR"
       },
       {
         "name": "Archie M. Macdonald",
         "stage": "Final Interviews",
-        "stage_date": "2026-07-22",
+        "stage_date": "2026-07-28",
         "job": "English BDR"
+      },
+      {
+        "name": "Christian Morgan-Hughes",
+        "stage": "Final Interviews",
+        "stage_date": "2026-07-30",
+        "job": "French BDR"
+      },
+      {
+        "name": "(3 placements)",
+        "stage": "Placed",
+        "stage_date": "2026-07-11",
+        "job": "Grad SDR"
       }
     ],
     "Joe Leonard": [
       {
-        "name": "Parris Torres",
-        "stage": "1st Interviews",
+        "name": "Alex Wooliscroft",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-02",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Mazen Ibrahim",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-05",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Anthony Scala",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-09",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Mac Boyle",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-07",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Joseph Feterman",
+        "stage": "CV Sent",
+        "stage_date": "2026-07-09",
+        "job": "Ent AE"
+      },
+      {
+        "name": "Elizabeth Bolke",
+        "stage": "CV Sent",
         "stage_date": "2026-07-13",
         "job": "Ent AE"
       },
       {
         "name": "Tom Crumley",
         "stage": "CV Sent",
-        "stage_date": "2026-07-02",
+        "stage_date": "2026-07-08",
         "job": "Ent AE"
       },
       {
         "name": "Tyler Jennings",
         "stage": "CV Sent",
-        "stage_date": "2026-07-13",
+        "stage_date": "2026-07-19",
         "job": "Ent AE"
       },
       {
         "name": "David Swissman",
         "stage": "CV Sent",
-        "stage_date": "2026-07-15",
+        "stage_date": "2026-07-21",
         "job": "Ent AE"
       },
       {
-        "name": "Alex Wooliscroft",
+        "name": "Justin Mainzer",
         "stage": "CV Sent",
-        "stage_date": "2026-06-26",
+        "stage_date": "2026-07-19",
         "job": "Ent AE"
       },
       {
-        "name": "Mazen Ibrahim",
+        "name": "Zachary Austin",
         "stage": "CV Sent",
-        "stage_date": "2026-06-29",
-        "job": "Ent AE"
+        "stage_date": "2026-06-18",
+        "job": "SDR"
       },
       {
-        "name": "Anthony Scala",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-03",
-        "job": "Ent AE"
-      },
-      {
-        "name": "Elizabeth Bolke",
-        "stage": "CV Sent",
-        "stage_date": "2026-07-07",
+        "name": "Parris Torres",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-19",
         "job": "Ent AE"
       }
     ]
