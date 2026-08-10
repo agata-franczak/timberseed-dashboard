@@ -167,6 +167,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .jt .jn{{font-weight:600;color:var(--t)}}
 .jt .jc{{text-align:right;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}}
 .stpill{{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin:1px 3px 1px 0;white-space:nowrap}}
+.jc-co{{color:var(--t2);font-weight:500}}
 .covtag{{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.03em}}
 .covok{{background:#DCFCE7;color:#166534}}
 .covpartial{{background:#FEF3C7;color:#92400E;cursor:help}}
@@ -223,7 +224,7 @@ function render(s,e){{
   document.getElementById("ojupdated").textContent=
     "All open roles on the Sales pipeline, across every owner"+(ojUpd?` \u00b7 last swept ${{fGB(ojUpd)}}`:"");
   document.getElementById("ojtable").innerHTML=
-    `<thead><tr><th>Job</th><th>Owner</th><th>Location</th><th>Stage breakdown</th><th style="text-align:right">Total</th><th>Coverage</th></tr></thead>
+    `<thead><tr><th>Job</th><th>Company</th><th>Owner</th><th>Location</th><th>Stage breakdown</th><th style="text-align:right">Total</th><th>Coverage</th></tr></thead>
      <tbody>${{oj.map(j=>{{
        const pills=(j.stage_breakdown||[]).map(b=>{{
          const on=b.count>0;
@@ -233,7 +234,7 @@ function render(s,e){{
        const cov=j.coverage==="complete"
          ?`<span class="covtag covok">Complete</span>`
          :`<span class="covtag covpartial" title="${{j.coverage_note||''}}">Partial</span>`;
-       return `<tr><td class="jn">${{j.name}}</td><td>${{j.owner}}</td><td class="jl">${{j.location}}</td>
+       return `<tr><td class="jn">${{j.name}}</td><td class="jc-co">${{j.company||""}}</td><td>${{j.owner}}</td><td class="jl">${{j.location}}</td>
          <td>${{pills}}</td>
          <td class="jc">${{j.candidates_in_process}}</td>
          <td>${{cov}}</td></tr>`;
