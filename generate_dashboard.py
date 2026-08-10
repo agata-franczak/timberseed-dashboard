@@ -71,7 +71,7 @@ def classify(meetings, pattern):
 
 def fetch_all(static):
     now  = datetime.now(timezone.utc)
-    data = {"generated_at": now.isoformat(), "consultants": [], "open_jobs": static.get("open_jobs", [])}
+    data = {"generated_at": now.isoformat(), "consultants": [], "open_jobs": static.get("open_jobs", []), "open_jobs_updated_at": static.get("open_jobs_updated_at", "")}
     for c in CONSULTANTS:
         print(f"\n▶ {c['name']}", flush=True)
         raw      = fetch_meetings(c["owner_id"])
@@ -167,6 +167,9 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .jt .jn{{font-weight:600;color:var(--t)}}
 .jt .jc{{text-align:right;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}}
 .stpill{{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin:1px 3px 1px 0;white-space:nowrap}}
+.covtag{{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.03em}}
+.covok{{background:#DCFCE7;color:#166534}}
+.covpartial{{background:#FEF3C7;color:#92400E;cursor:help}}
 </style></head><body>
 <header class="hdr">
   <div class="logo"><div class="lm">TS</div>
@@ -193,7 +196,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 <main class="main"><div class="sg" id="sg"></div>
 <div class="grid" id="grid"></div>
 <div class="card" id="ojcard" style="margin-top:16px">
-  <div class="ch"><div><div class="cn">Open Sales Jobs</div><div class="cr">All open roles on the Sales pipeline, across every owner</div></div></div>
+  <div class="ch"><div><div class="cn">Open Sales Jobs</div><div class="cr" id="ojupdated">All open roles on the Sales pipeline, across every owner</div></div></div>
   <div class="cb"><div class="bx" style="padding:0"><table class="jt" id="ojtable"></table></div></div>
 </div>
 </main>
@@ -216,17 +219,24 @@ function render(s,e){{
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
   const oj=D.open_jobs||[];
+  const ojUpd=D.open_jobs_updated_at?new Date(D.open_jobs_updated_at):null;
+  document.getElementById("ojupdated").textContent=
+    "All open roles on the Sales pipeline, across every owner"+(ojUpd?` \u00b7 last swept ${{fGB(ojUpd)}}`:"");
   document.getElementById("ojtable").innerHTML=
-    `<thead><tr><th>Job</th><th>Owner</th><th>Location</th><th>Stage breakdown</th><th style="text-align:right">Total</th></tr></thead>
+    `<thead><tr><th>Job</th><th>Owner</th><th>Location</th><th>Stage breakdown</th><th style="text-align:right">Total</th><th>Coverage</th></tr></thead>
      <tbody>${{oj.map(j=>{{
        const pills=(j.stage_breakdown||[]).map(b=>{{
          const on=b.count>0;
          const bg=on?SC[b.stage]+"22":"#f1f5f9";const fg=on?SC[b.stage]:"#94a3b8";const bd=on?SC[b.stage]+"55":"#e2e8f0";
          return `<span class="stpill" style="background:${{bg}};color:${{fg}};border:1px solid ${{bd}}">${{b.stage}} ${{b.count}}</span>`;
        }}).join(" ");
+       const cov=j.coverage==="complete"
+         ?`<span class="covtag covok">Complete</span>`
+         :`<span class="covtag covpartial" title="${{j.coverage_note||''}}">Partial</span>`;
        return `<tr><td class="jn">${{j.name}}</td><td>${{j.owner}}</td><td class="jl">${{j.location}}</td>
          <td>${{pills}}</td>
-         <td class="jc">${{j.candidates_in_process}}</td></tr>`;
+         <td class="jc">${{j.candidates_in_process}}</td>
+         <td>${{cov}}</td></tr>`;
      }}).join("")}}</tbody>`;
   let tC=0,tD=0,tP=0,tPl=0;
   const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;if(c.dist_total)tD+=c.dist_total;tP+=r.pipe;tPl+=r.placed;return r;}});
