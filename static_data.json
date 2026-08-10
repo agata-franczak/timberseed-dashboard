@@ -3,30 +3,32 @@
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
-      "total": 128,
+      "total": 130,
       "stages": [
         {
           "stage": "Assigned",
-          "count": 29
+          "count": 11
         },
         {
           "stage": "Call",
-          "count": 99
+          "count": 119
         }
-      ]
+      ],
+      "updated_at": "2026-08-10T14:00:57.156187+00:00"
     },
     "Joe Leonard": {
       "total": 123,
       "stages": [
         {
           "stage": "Assigned",
-          "count": 9
+          "count": 3
         },
         {
           "stage": "Call",
-          "count": 114
+          "count": 120
         }
-      ]
+      ],
+      "updated_at": "2026-08-10T14:00:57.156187+00:00"
     }
   },
   "pipeline": {
