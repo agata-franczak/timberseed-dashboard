@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Diagnostic - all open jobs, candidates at key stages, filter by owner."""
+"""Diagnostic - find hiring pipeline field in jobs API."""
 
 import json, os, sys
-from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 try:
@@ -14,16 +13,6 @@ API_KEY  = os.environ.get("RECRUITCRM_API_KEY", "")
 BASE_URL = "https://api.recruitcrm.io/v1"
 HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
 
-# We want candidates owned by Toby or Joe
-TOBY_ID = 140768
-JOE_ID  = 143107
-OWNERS  = {TOBY_ID: "Toby", JOE_ID: "Joe"}
-
-KEY_STAGES = {537163:"CV Sent", 537164:"1st Interviews",
-              537165:"Further Interviews", 537166:"Final Interviews", 8:"Placed"}
-
-CUTOFF = (datetime.now(timezone.utc) - timedelta(days=90)).strftime("%Y-%m-%d")
-
 def rc_get(path, params=None):
     r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
                      params=params or {}, timeout=30)
@@ -34,62 +23,48 @@ if __name__ == "__main__":
     if not API_KEY:
         print("ERROR"); sys.exit(1)
 
-    # Step 1: all open jobs updated in last 90 days
-    print(f"Scanning all open jobs updated since {CUTOFF}...", flush=True)
-    all_jobs, page = [], 1
-    while True:
-        body = rc_get("/jobs", {"job_status": "1", "limit": 100, "page": page})
-        jobs = body.get("data", [])
-        if not jobs: break
-        oldest = min((j.get("updated_on") or "")[:10] for j in jobs)
-        in_range = [j for j in jobs if (j.get("updated_on") or "")[:10] >= CUTOFF]
-        all_jobs.extend(in_range)
-        print(f"  p{page}: {len(jobs)} total, {len(in_range)} in range, oldest: {oldest}", flush=True)
-        if oldest < CUTOFF or not body.get("next_page_url"):
-            break
-        page += 1
+    # Fetch a few jobs and print ALL fields on each
+    body = rc_get("/jobs", {"job_status": "1", "limit": 5, "page": 1})
+    jobs = body.get("data", [])
+    print(f"Fetched {len(jobs)} jobs\n")
 
-    print(f"\nOpen jobs updated in last 90 days: {len(all_jobs)}")
+    for j in jobs[:3]:
+        print(f"=== {j.get('name')} (owner: {j.get('owner')}) ===")
+        for k, v in j.items():
+            if v not in (None, "", 0, [], {}):
+                print(f"  {k}: {v}")
+        print()
 
-    # Step 2: for each job, get candidates at key stages
-    stage_param = ",".join(str(k) for k in KEY_STAGES)
-    pipeline = []
-    owner_counts = {}
+    # Also try fetching a known SaaS job (English BDR) specifically
+    print("=== Known SaaS job: English BDR ===")
+    body2 = rc_get("/jobs/17835152199350098322kWD")
+    if isinstance(body2, dict):
+        for k, v in body2.items():
+            if v not in (None, "", 0, [], {}):
+                print(f"  {k}: {v}")
 
-    for j in all_jobs:
-        slug = j.get("slug")
-        if not slug: continue
+    # Try filtering jobs by hiring_pipeline parameters
+    print("\n=== Try hiring_pipeline filter ===")
+    for param in ["hiring_pipeline", "hiring_pipeline_id", "pipeline", "pipeline_id"]:
         try:
-            body = rc_get("/candidates", {
-                "job_slug":  slug,
-                "status_id": stage_param,
-                "limit": 100,
-            })
-            cands = body.get("data", [])
-            if not cands: continue
-
-            for c in cands:
-                owner = c.get("owner_id") or c.get("owner") or 0
-                owner_counts[owner] = owner_counts.get(owner, 0) + 1
-
-                if owner in OWNERS:
-                    pipeline.append({
-                        "owner":      OWNERS[owner],
-                        "name":       f"{c.get('first_name','')} {c.get('last_name','')}".strip(),
-                        "stage":      c.get("status_label") or KEY_STAGES.get(c.get("status_id"), "?"),
-                        "stage_date": (c.get("updated_on") or "")[:10],
-                        "job":        j.get("name",""),
-                    })
+            r = requests.get(f"{BASE_URL}/jobs", headers=HEADERS,
+                             params={"job_status": "1", param: "sales", "limit": 1},
+                             timeout=30)
+            body3 = r.json()
+            jobs3 = body3.get("data", [])
+            total = body3.get("total", "?")
+            print(f"  {param}=sales → status {r.status_code}, total: {total}, jobs: {len(jobs3)}")
         except Exception as e:
-            print(f"  {j.get('name')}: {e}", flush=True)
+            print(f"  {param}: error — {e}")
 
-    print(f"\nPipeline candidates (Toby+Joe): {len(pipeline)}")
-    for p in pipeline:
-        print(f"  {p['owner']}: {p['name']} | {p['stage']} | {p['stage_date']} | {p['job']}")
-
-    print(f"\nTop owner IDs seen across all candidates:")
-    for oid, cnt in sorted(owner_counts.items(), key=lambda x:-x[1])[:15]:
-        print(f"  {oid}: {cnt} candidates")
+    # Try hiring pipelines endpoint
+    print("\n=== /hiring-pipelines endpoint ===")
+    for path in ["/hiring-pipelines", "/pipelines", "/hiring_pipelines"]:
+        try:
+            r = requests.get(f"{BASE_URL}{path}", headers=HEADERS, timeout=30)
+            print(f"  {path} → {r.status_code}: {r.text[:200]}")
+        except Exception as e:
+            print(f"  {path}: {e}")
 
     out = Path("docs"); out.mkdir(exist_ok=True)
     (out / "index.html").write_text("<html><body><h1>Diagnostic</h1></body></html>")
