@@ -32,9 +32,9 @@ CONSULTANTS = [
      "label":"BD prospect meetings",  "note":"External prospect calls"},
 ]
 
-STAGE_COLORS = {"CV Sent":"#534AB7","1st Interviews":"#185FA5",
-                "Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"}
-STAGE_ORDER  = ["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"]
+STAGE_COLORS = {"Call":"#94A3B8","2nd call":"#64748B","CV Sent":"#534AB7","1st Interviews":"#185FA5",
+                "Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Offer":"#B45309","Placed":"#1D9E75"}
+STAGE_ORDER  = ["Call","2nd call","CV Sent","1st Interviews","Further Interviews","Final Interviews","Offer","Placed"]
 
 def rc_get(path, params=None):
     r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
