@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Diagnostic - probe app.recruitcrm.io reports endpoint."""
+"""Diagnostic - test report.recruitcrm.io endpoint."""
 
-import json, os, sys
+import json, os, sys, time
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 try:
@@ -9,78 +10,66 @@ try:
 except ImportError:
     print("pip install requests"); sys.exit(1)
 
-API_KEY  = os.environ.get("RECRUITCRM_API_KEY", "")
-HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
+API_KEY = os.environ.get("RECRUITCRM_API_KEY", "")
+JWT     = os.environ.get("RECRUITCRM_JWT", "")  # will test with and without
 
-def probe(label, url, params=None, method="GET", body=None):
+# Date range: last 30 days
+now      = int(time.time())
+from_ts  = now - (30 * 24 * 60 * 60)
+
+PAYLOAD = {
+    "from_date": str(from_ts),
+    "to_date":   str(now),
+    "kpi_lists": [{"value": "537178", "label": "Hiring Stage - Call", "checked": True}],
+    "recruiter_ids": [140768, 143107, 147065],  # Toby, Joe, Finn
+    "team_ids": [1841, 1842, 1855, 1856, 1857],
+}
+
+REPORT_URL = "https://report.recruitcrm.io/v1/reports/team-performance-report"
+
+def try_request(label, auth_header):
     print(f"\n=== {label} ===")
-    print(f"  url: {url}")
-    try:
-        if method == "POST":
-            r = requests.post(url, headers=HEADERS, json=body or {}, timeout=30)
-        else:
-            r = requests.get(url, headers=HEADERS, params=params or {}, timeout=30)
-        print(f"  status: {r.status_code}")
-        if r.status_code in (200, 201):
-            try:
-                b = r.json()
-                print(f"  type: {type(b).__name__}")
-                if isinstance(b, dict):
-                    print(f"  keys: {list(b.keys())}")
-                    for k in ["total","count","data","results","report","records"]:
-                        if k in b:
-                            v = b[k]
-                            print(f"  {k}: {v if not isinstance(v,(list,dict)) else f'({type(v).__name__}, len={len(v)})'}")
-                elif isinstance(b, list):
-                    print(f"  list length: {len(b)}")
-                    if b:
-                        print(f"  first item keys: {list(b[0].keys()) if isinstance(b[0],dict) else b[0]}")
-            except:
-                print(f"  raw (first 300): {r.text[:300]}")
-        else:
-            print(f"  body: {r.text[:300]}")
-    except Exception as e:
-        print(f"  error: {e}")
+    headers = {
+        "Accept":       "application/json, text/plain, */*",
+        "Authcode":     "kSyfwqb1",
+        "Authorization": auth_header,
+        "Content-Type": "application/json",
+    }
+    r = requests.post(REPORT_URL, headers=headers, json=PAYLOAD, timeout=30)
+    print(f"  status: {r.status_code}")
+    if r.status_code == 200:
+        b = r.json()
+        print(f"  keys: {list(b.keys())}")
+        data = b.get("data", {})
+        print(f"  recruiter entries: {len(data)}")
+        for rid, val in list(data.items())[:3]:
+            print(f"    {rid}: {val}")
+    else:
+        print(f"  body: {r.text[:300]}")
 
 if __name__ == "__main__":
     if not API_KEY:
         print("ERROR: no API key"); sys.exit(1)
-    print(f"Key: {API_KEY[:8]}...")
 
-    APP = "https://app.recruitcrm.io/v1"
-    API = "https://api.recruitcrm.io/v1"
+    # Test 1: use our API key as Bearer
+    try_request("API key as Bearer", f"Bearer {API_KEY}")
 
-    # The URL from the browser
-    probe("candidate-report (app domain)",
-          f"{APP}/reports/candidate-report")
+    # Test 2: if JWT secret is set, try that
+    if JWT:
+        try_request("JWT from secret", f"Bearer {JWT}")
+    else:
+        print("\n=== JWT test skipped (RECRUITCRM_JWT secret not set) ===")
 
-    probe("candidate-report with params",
-          f"{APP}/reports/candidate-report",
-          params={"from": "2026-07-11", "to": "2026-08-10"})
-
-    probe("candidate-report with owner",
-          f"{APP}/reports/candidate-report",
-          params={"from": "2026-07-11", "to": "2026-08-10",
-                  "owner_id": 140768, "stage": "Call"})
-
-    # Try variations
-    probe("reports list (app domain)",
-          f"{APP}/reports")
-
-    probe("candidate-lifecycle (app domain)",
-          f"{APP}/reports/candidate-lifecycle")
-
-    probe("kpi-report (app domain)",
-          f"{APP}/reports/kpi-report")
-
-    # Also try api domain with correct path
-    probe("candidate-report (api domain)",
-          f"{API}/reports/candidate-report")
-
-    # Try meetings on app domain
-    probe("meetings (app domain)",
-          f"{APP}/meetings",
-          params={"owner_id": 140768, "limit": 1})
+    # Test 3: try refresh-jwt-token with our API key
+    print("\n=== Try refresh-jwt-token with API key ===")
+    r = requests.post(
+        "https://marketplace.api.vonq.com/v3/ats/atsuser/me/refresh-jwt-token/",
+        headers={"Authorization": f"Bearer {API_KEY}",
+                 "Content-Type": "application/json"},
+        timeout=30
+    )
+    print(f"  status: {r.status_code}")
+    print(f"  body: {r.text[:300]}")
 
     out = Path("docs"); out.mkdir(exist_ok=True)
     (out / "index.html").write_text("<html><body><h1>Diagnostic</h1></body></html>")
