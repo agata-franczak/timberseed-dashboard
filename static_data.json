@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T13:35:37.828211",
+  "updated_at": "2026-08-10T14:27:49.304271",
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
@@ -302,6 +302,204 @@
         "stage": "Offer",
         "stage_date": "2026-07-23",
         "job": "English BDR"
+      },
+      {
+        "name": "Karris Middleton",
+        "stage": "Call",
+        "stage_date": "2026-07-27",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Hyatt Kneeley",
+        "stage": "Call",
+        "stage_date": "2026-05-11",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Imani Brooks",
+        "stage": "Call",
+        "stage_date": "2026-06-04",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Corey Johnson",
+        "stage": "Call",
+        "stage_date": "2026-05-19",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Addison Guild",
+        "stage": "Call",
+        "stage_date": "2026-06-11",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Makaylah McClure",
+        "stage": "Call",
+        "stage_date": "2026-05-19",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Berenice Chavez",
+        "stage": "Call",
+        "stage_date": "2026-05-11",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "William Edmiston",
+        "stage": "Call",
+        "stage_date": "2026-07-20",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Matthew Hart",
+        "stage": "Call",
+        "stage_date": "2026-07-23",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Kristen Woods",
+        "stage": "Call",
+        "stage_date": "2026-04-28",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Shadai Tate",
+        "stage": "Call",
+        "stage_date": "2026-07-21",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Vanessa Dejesus",
+        "stage": "Call",
+        "stage_date": "2026-06-16",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "William Tuller",
+        "stage": "Call",
+        "stage_date": "2026-07-27",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Alexa Harris",
+        "stage": "Call",
+        "stage_date": "2026-04-24",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Evan Bhandari",
+        "stage": "Call",
+        "stage_date": "2026-07-20",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Bryce Bennett",
+        "stage": "Call",
+        "stage_date": "2026-05-19",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Kevin Granson",
+        "stage": "Call",
+        "stage_date": "2026-05-12",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Canvas Gladney",
+        "stage": "Call",
+        "stage_date": "2026-05-14",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Cordelia Jurkowski",
+        "stage": "Call",
+        "stage_date": "2026-05-18",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Max McCracken",
+        "stage": "Call",
+        "stage_date": "2026-07-20",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Lauren Black",
+        "stage": "Call",
+        "stage_date": "2026-05-19",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Ty West",
+        "stage": "2nd call",
+        "stage_date": "2026-07-17",
+        "job": "Charlotte SDR"
+      },
+      {
+        "name": "Orkun Gul",
+        "stage": "Call",
+        "stage_date": "2026-08-04",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Dia Rupchandani",
+        "stage": "Call",
+        "stage_date": "2026-08-05",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Niam P.",
+        "stage": "2nd call",
+        "stage_date": "2026-08-03",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Emily Weston",
+        "stage": "CV Sent",
+        "stage_date": "2026-08-06",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Rohan Sesetti",
+        "stage": "Call",
+        "stage_date": "2026-08-04",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Vignesh Anantharajah",
+        "stage": "Call",
+        "stage_date": "2026-08-07",
+        "job": "SDR (London)"
+      },
+      {
+        "name": "Varun Nagar",
+        "stage": "Call",
+        "stage_date": "2026-06-22",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Nuala Kinsman",
+        "stage": "Call",
+        "stage_date": "2026-06-22",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Charlotte Davies",
+        "stage": "Call",
+        "stage_date": "2026-06-17",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Gracia A.",
+        "stage": "Call",
+        "stage_date": "2026-06-16",
+        "job": "Grad SDR (Manchester)"
+      },
+      {
+        "name": "Jadon McFarlane",
+        "stage": "2nd call",
+        "stage_date": "2026-06-25",
+        "job": "Grad SDR (Manchester)"
       }
     ],
     "Joe Leonard": [
