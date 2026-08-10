@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T13:17:31.931115",
+  "updated_at": "2026-08-10T13:35:37.828211",
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
@@ -668,91 +668,601 @@
       "name": "Dutch SDR",
       "owner": "Jonathan Dusse",
       "location": "London, UK",
-      "candidates_in_process": 16
+      "candidates_in_process": 16,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 11
+        },
+        {
+          "stage": "2nd call",
+          "count": 2
+        },
+        {
+          "stage": "CV Sent",
+          "count": 2
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 1
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "French SDR",
       "owner": "Joe Leonard",
       "location": "UK (remote/unspecified)",
-      "candidates_in_process": 15
+      "candidates_in_process": 15,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 9
+        },
+        {
+          "stage": "2nd call",
+          "count": 4
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 1
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 1
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Grad SDR (Southwark)",
       "owner": "Toby Ranson",
       "location": "Southwark, London, UK",
-      "candidates_in_process": 12
+      "candidates_in_process": 12,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 2
+        },
+        {
+          "stage": "2nd call",
+          "count": 9
+        },
+        {
+          "stage": "CV Sent",
+          "count": 1
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "SDR (London)",
       "owner": "Toby Ranson",
       "location": "London, UK",
-      "candidates_in_process": 12
+      "candidates_in_process": 12,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 12
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Care Coordinator (edyn.care)",
       "owner": "Joe Leonard",
       "location": "London, UK",
-      "candidates_in_process": 9
+      "candidates_in_process": 9,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 1
+        },
+        {
+          "stage": "2nd call",
+          "count": 4
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 1
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 3
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "SDR",
       "owner": "Joe Leonard",
       "location": "London, UK",
-      "candidates_in_process": 8
+      "candidates_in_process": 8,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 8
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Grad SDR (Manchester)",
       "owner": "Toby Ranson",
       "location": "Manchester, UK",
-      "candidates_in_process": 7
+      "candidates_in_process": 7,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 4
+        },
+        {
+          "stage": "2nd call",
+          "count": 1
+        },
+        {
+          "stage": "CV Sent",
+          "count": 2
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "SDR (Xelix)",
       "owner": "Joe Leonard",
       "location": "London, UK",
-      "candidates_in_process": 6
+      "candidates_in_process": 6,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 6
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "German BDR",
       "owner": "Toby Ranson",
       "location": "London, UK",
-      "candidates_in_process": 5
+      "candidates_in_process": 5,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 1
+        },
+        {
+          "stage": "2nd call",
+          "count": 2
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 2
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "English BDR",
       "owner": "Toby Ranson",
       "location": "London, UK",
-      "candidates_in_process": 4
+      "candidates_in_process": 4,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 2
+        },
+        {
+          "stage": "2nd call",
+          "count": 1
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 1
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Charlotte SDR",
       "owner": "Toby Ranson",
       "location": "Charlotte, US",
-      "candidates_in_process": 3
+      "candidates_in_process": 3,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 3
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Exp SDR (Munich)",
       "owner": "Joe Leonard",
       "location": "Munich, Germany",
-      "candidates_in_process": 3
+      "candidates_in_process": 3,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 2
+        },
+        {
+          "stage": "2nd call",
+          "count": 1
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "German SDR",
       "owner": "Toby Ranson",
       "location": "UK (remote/unspecified)",
-      "candidates_in_process": 2
+      "candidates_in_process": 2,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 1
+        },
+        {
+          "stage": "2nd call",
+          "count": 1
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Ent AE",
       "owner": "Joe Leonard",
       "location": "US (remote/unspecified)",
-      "candidates_in_process": 2
+      "candidates_in_process": 2,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 2
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     },
     {
       "name": "Travel Account Executive",
       "owner": "Jonathan Dusse",
       "location": "London, UK",
-      "candidates_in_process": 0
+      "candidates_in_process": 0,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 0
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ]
     }
   ]
 }
