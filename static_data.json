@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T14:45:03.535860",
+  "updated_at": "2026-08-10T14:51:18.529466+00:00",
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
@@ -1169,7 +1169,8 @@
       ],
       "coverage": "partial",
       "coverage_note": "~2100 of an estimated 3000+ candidates analyzed",
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "EngageTech"
     },
     {
       "name": "SDR (London)",
@@ -1212,7 +1213,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Allocator"
     },
     {
       "name": "Dutch SDR",
@@ -1255,7 +1257,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "EngageTech"
     },
     {
       "name": "French SDR",
@@ -1298,7 +1301,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Airship"
     },
     {
       "name": "Grad SDR (Southwark)",
@@ -1341,7 +1345,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "WatchMyCompetitor"
     },
     {
       "name": "Grad SDR (Manchester)",
@@ -1384,7 +1389,8 @@
       ],
       "coverage": "partial",
       "coverage_note": "~600 of an estimated 600+ candidates analyzed (still truncated)",
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Mitigo Group"
     },
     {
       "name": "Care Coordinator (edyn.care)",
@@ -1427,7 +1433,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "edyn.care"
     },
     {
       "name": "SDR",
@@ -1470,7 +1477,8 @@
       ],
       "coverage": "partial",
       "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "SourceWhale"
     },
     {
       "name": "SDR (Xelix)",
@@ -1513,7 +1521,8 @@
       ],
       "coverage": "partial",
       "coverage_note": "First ~400 candidates only; job has more beyond that, not re-swept",
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Xelix"
     },
     {
       "name": "German BDR",
@@ -1556,7 +1565,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "EngageTech"
     },
     {
       "name": "English BDR",
@@ -1599,7 +1609,8 @@
       ],
       "coverage": "partial",
       "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Aura Commodities"
     },
     {
       "name": "Exp SDR (Munich)",
@@ -1642,7 +1653,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Bazaarvoice"
     },
     {
       "name": "German SDR",
@@ -1685,7 +1697,8 @@
       ],
       "coverage": "partial",
       "coverage_note": "First 300 candidates only; job has more beyond that, not re-swept",
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "EngageTech"
     },
     {
       "name": "Ent AE",
@@ -1728,7 +1741,8 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "Siro"
     },
     {
       "name": "Travel Account Executive",
@@ -1771,8 +1785,9 @@
       ],
       "coverage": "complete",
       "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00"
+      "last_swept": "2026-08-10T14:33:53.349366+00:00",
+      "company": "EngageTech"
     }
   ],
-  "open_jobs_updated_at": "2026-08-10T14:33:53.349366+00:00"
+  "open_jobs_updated_at": "2026-08-10T14:51:18.529466+00:00"
 }
