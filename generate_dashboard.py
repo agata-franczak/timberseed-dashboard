@@ -89,6 +89,7 @@ def fetch_all(static):
             "meetings":       meetings,
             "dist_total":     dist["total"] if dist else None,
             "dist_stages":    dist["stages"] if dist else [],
+            "dist_updated":   dist.get("updated_at", "") if dist else "",
             "pipeline":       pipeline,
             "static_updated": static.get("updated_at", ""),
         })
@@ -205,9 +206,12 @@ function bR(days){{const e=new Date();e.setHours(23,59,59,999);const s=new Date(
 function render(s,e){{
   const g=new Date(D.generated_at);
   const su=D.consultants[0]?.static_updated?new Date(D.consultants[0].static_updated):null;
+  const du=D.consultants.map(c=>c.dist_updated).filter(Boolean).sort().pop();
+  const duD=du?new Date(du):null;
   document.getElementById("hdates").innerHTML=
     `Calls: ${{fGB(g)}} ${{g.toLocaleTimeString("en-GB",{{hour:"2-digit",minute:"2-digit"}})}}<br>`+
-    (su?`Pipeline: ${{fGB(su)}}`:"");
+    (su?`Pipeline: ${{fGB(su)}}<br>`:"")+
+    (duD?`Distribution: ${{fGB(duD)}}`:"");
   document.getElementById("ri").textContent=fGB(s)+" \u2013 "+fGB(e);
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
@@ -255,9 +259,10 @@ function bC(c,s,e){{
       return `<div class="ss-seg" style="flex:${{ds.count}};background:${{col}}" title="${{ds.stage}}: ${{ds.count}}"></div>`;}}).join("");
     const legs=c.dist_stages.map(ds=>{{const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";
       return `<div class="leg"><div class="ld" style="background:${{col}}"></div>${{ds.stage}}: ${{ds.count}}</div>`;}}).join("");
+    const duTxt=c.dist_updated?fGB(new Date(c.dist_updated)):"unknown";
     distHtml=`<div><div class="secl">Distribution job</div><div class="bx">
       <div class="br"><div class="bl">${{c.name.split(" ")[0]}}'s dist. job</div><div class="bn">${{c.dist_total}}</div></div>
-      <div class="bsub">candidates assigned</div>
+      <div class="bsub">candidates assigned \u00b7 updated ${{duTxt}}</div>
       <div class="sb">${{segs}}</div><div class="sl2">${{legs}}</div>
     </div></div>`;
   }}
