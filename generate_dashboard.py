@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Timberseed Dashboard Generator
-- Meetings: live daily via title pattern
-- Pipeline: Sales pipeline jobs → candidates filtered by owner + stage
+- Calls: fetched live daily from RecruitCRM meetings API
+- Pipeline + dist jobs: read from static_data.json (update weekly via Claude MCP)
 """
 
 import json, os, sys
@@ -19,8 +19,6 @@ BASE_URL = "https://api.recruitcrm.io/v1"
 HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
 
 DAYS_BACK = 90
-CUTOFF    = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).strftime("%Y-%m-%d")
-SALES_PIPELINE_IDS = {3422}
 
 CONSULTANTS = [
     {"name":"Toby Ranson",  "initials":"TR", "role":"Consultant",
@@ -34,18 +32,9 @@ CONSULTANTS = [
      "label":"BD prospect meetings",  "note":"External prospect calls"},
 ]
 
-GOOD_STAGES = {
-    "CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed",
-    "Call","2nd call","Offer","Link sent","Interested",
-}
-STAGE_MAP = {
-    "Call":       "1st Interviews",
-    "2nd call":   "1st Interviews",
-    "Offer":      "Final Interviews",
-    "Link sent":  "CV Sent",
-    "Interested": "CV Sent",
-}
-STAGE_ORDER = ["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"]
+STAGE_COLORS = {"CV Sent":"#534AB7","1st Interviews":"#185FA5",
+                "Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"}
+STAGE_ORDER  = ["CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed"]
 
 def rc_get(path, params=None):
     r = requests.get(f"{BASE_URL}{path}", headers=HEADERS,
@@ -53,26 +42,23 @@ def rc_get(path, params=None):
     r.raise_for_status()
     return r.json()
 
-# ── Meetings ──────────────────────────────────────────────────────────────────
-
 def fetch_meetings(owner_id):
     end   = datetime.now(timezone.utc)
     start = end - timedelta(days=DAYS_BACK)
+    cutoff = start.date().isoformat()
     out, page = [], 1
     params = {"owner_id": owner_id,
               "starting_from": start.strftime("%Y-%m-%d"),
               "starting_to":   end.strftime("%Y-%m-%d"),
               "limit": 100}
-    while page <= 25:  # cap at 25 pages = 2500 meetings max
+    while page <= 25:
         body  = rc_get("/meetings", {**params, "page": page})
         batch = body.get("data", [])
-        if not batch:
-            break
-        in_range = [m for m in batch if (m.get("start_date") or "")[:10] >= CUTOFF]
+        if not batch: break
+        in_range = [m for m in batch if (m.get("start_date") or "")[:10] >= cutoff]
         out.extend(in_range)
         oldest = min((m.get("start_date") or "")[:10] for m in batch)
-        if oldest < CUTOFF or not body.get("next_page_url"):
-            break
+        if oldest < cutoff or not body.get("next_page_url"): break
         page += 1
     print(f"  meetings: {len(out)} in range ({page} pages)", flush=True)
     return out
@@ -83,122 +69,34 @@ def classify(meetings, pattern):
              (m.get("title") or "").replace("&lt;","<").replace("&gt;",">").lower()}
             for m in meetings]
 
-# ── Pipeline ──────────────────────────────────────────────────────────────────
-
-def fetch_sales_jobs():
-    jobs, page = [], 1
-    while True:
-        body  = rc_get("/jobs", {"job_status": "1", "limit": 100, "page": page})
-        batch = body.get("data", [])
-        if not batch: break
-        oldest = min((j.get("updated_on") or "")[:10] for j in batch)
-        in_range = [j for j in batch
-                    if (j.get("updated_on") or "")[:10] >= CUTOFF
-                    and j.get("hiring_pipeline_id") in SALES_PIPELINE_IDS]
-        jobs.extend(in_range)
-        print(f"  jobs p{page}: {len(batch)} scanned, {len(in_range)} sales in range", flush=True)
-        if oldest < CUTOFF or not body.get("next_page_url"):
-            break
-        page += 1
-    print(f"  Sales jobs total: {len(jobs)}", flush=True)
-    return jobs
-
-def fetch_pipeline_for_owners(owner_ids):
-    jobs      = fetch_sales_jobs()
-    owner_map = {c["owner_id"]: c["name"] for c in CONSULTANTS}
-    pipeline  = {oid: [] for oid in owner_ids}
-    seen      = set()
-
-    for j in jobs:
-        slug = j.get("slug")
-        if not slug: continue
-        try:
-            page, all_cands = 1, []
-            while page <= 5:
-                body  = rc_get("/candidates", {"job_slug": slug, "limit": 100, "page": page})
-                batch = body.get("data", [])
-                all_cands.extend(batch)
-                if not body.get("next_page_url"): break
-                page += 1
-
-            matched = 0
-            for c in all_cands:
-                # Try both possible owner fields
-                owner = c.get("owner_id") or c.get("owner")
-                if owner not in owner_ids:
-                    continue
-                stage_raw = c.get("status_label") or "?"
-                if stage_raw not in GOOD_STAGES:
-                    continue
-                updated = (c.get("updated_on") or "")[:10]
-                if updated < CUTOFF:
-                    continue
-                key = (c.get("slug"), slug)
-                if key in seen:
-                    continue
-                seen.add(key)
-                stage = STAGE_MAP.get(stage_raw, stage_raw)
-                pipeline[owner].append({
-                    "name":       f"{c.get('first_name','')} {c.get('last_name','')}".strip(),
-                    "stage":      stage,
-                    "stage_date": updated,
-                    "job":        j.get("name",""),
-                })
-                matched += 1
-
-            if matched > 0:
-                print(f"  {j.get('name')}: {len(all_cands)} candidates, {matched} matched", flush=True)
-        except Exception as e:
-            print(f"  {j.get('name')}: {e}", flush=True)
-
-    # Debug: show what owner IDs we actually saw
-    print(f"\nDebug — owner IDs seen in candidates (first 10 unique):", flush=True)
-    all_seen = {}
-    for j in jobs[:5]:  # sample first 5 jobs
-        try:
-            body  = rc_get("/candidates", {"job_slug": j.get("slug"), "limit": 10})
-            for c in body.get("data", []):
-                oid = c.get("owner_id") or c.get("owner")
-                all_seen[oid] = all_seen.get(oid, 0) + 1
-        except: pass
-    for oid, cnt in sorted(all_seen.items(), key=lambda x:-x[1])[:10]:
-        print(f"  {oid}: {cnt} (looking for {list(owner_ids)})", flush=True)
-
-    for oid, entries in pipeline.items():
-        print(f"  {owner_map.get(oid)}: {len(entries)} pipeline candidates", flush=True)
-    return pipeline
-
-# ── Main & HTML (unchanged) ───────────────────────────────────────────────────
-
-def fetch_all():
+def fetch_all(static):
     now  = datetime.now(timezone.utc)
     data = {"generated_at": now.isoformat(), "consultants": []}
-
-    print("Fetching pipeline...", flush=True)
-    owner_ids = {c["owner_id"] for c in CONSULTANTS if c["role"] == "Consultant"}
-    pipeline  = fetch_pipeline_for_owners(owner_ids)
-
     for c in CONSULTANTS:
         print(f"\n▶ {c['name']}", flush=True)
         raw      = fetch_meetings(c["owner_id"])
         meetings = classify(raw, c["pattern"])
         calls    = sum(1 for m in meetings if m["is_call"])
         print(f"  calls classified: {calls}", flush=True)
+        dist     = static.get("dist_jobs", {}).get(c["name"])
+        pipeline = static.get("pipeline", {}).get(c["name"], [])
         data["consultants"].append({
-            "name":          c["name"],
-            "initials":      c["initials"],
-            "role":          c["role"],
-            "meeting_label": c["label"],
-            "meeting_note":  c["note"],
-            "meetings":      meetings,
-            "pipeline":      pipeline.get(c["owner_id"], []),
+            "name":           c["name"],
+            "initials":       c["initials"],
+            "role":           c["role"],
+            "meeting_label":  c["label"],
+            "meeting_note":   c["note"],
+            "meetings":       meetings,
+            "dist_total":     dist["total"] if dist else None,
+            "dist_stages":    dist["stages"] if dist else [],
+            "pipeline":       pipeline,
+            "static_updated": static.get("updated_at", ""),
         })
     return data
 
 def build_html(data):
     dj = json.dumps(data, ensure_ascii=False)
-    sc = json.dumps({"CV Sent":"#534AB7","1st Interviews":"#185FA5",
-                     "Further Interviews":"#0F6E56","Final Interviews":"#854F0B","Placed":"#1D9E75"})
+    sc = json.dumps(STAGE_COLORS)
     so = json.dumps(STAGE_ORDER)
     return f"""<!DOCTYPE html>
 <html lang="en"><head>
@@ -213,7 +111,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .logo{{display:flex;align-items:center;gap:10px}}
 .lm{{width:34px;height:34px;border-radius:8px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}}
 .ln{{font-size:15px;font-weight:600}}.ls{{font-size:12px;color:var(--t3);margin-top:1px}}
-.gen{{font-size:11px;color:var(--t3)}}
+.hdates{{text-align:right;font-size:11px;color:var(--t3);line-height:1.6}}
 .ctrl{{background:var(--s);border-bottom:1px solid var(--b);padding:.875rem 1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}}
 .cl{{font-size:12px;font-weight:500;color:var(--t2)}}
 .prs{{display:flex;gap:6px;flex-wrap:wrap}}
@@ -246,6 +144,11 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .mb:hover{{background:var(--p)}}
 .mbn{{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--t2);white-space:nowrap}}
 .mx{{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:3px}}
+.sb{{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:8px;background:var(--b)}}
+.ss-seg{{height:100%}}
+.sl2{{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}}
+.leg{{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t3)}}
+.ld{{width:7px;height:7px;border-radius:50%}}
 .fn{{display:flex;flex-direction:column;gap:6px}}
 .fr{{display:flex;align-items:center;gap:8px}}
 .fl{{width:130px;font-size:12px;color:var(--t2);flex-shrink:0}}
@@ -261,7 +164,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
   <div class="logo"><div class="lm">TS</div>
     <div><div class="ln">Timberseed</div><div class="ls">Consultant Performance Dashboard</div></div>
   </div>
-  <div class="gen" id="gen"></div>
+  <div class="hdates" id="hdates"></div>
 </header>
 <div class="ctrl">
   <span class="cl">Period:</span>
@@ -288,15 +191,19 @@ function inR(ds,s,e){{if(!ds)return false;const d=new Date(ds);d.setHours(12);re
 function bR(days){{const e=new Date();e.setHours(23,59,59,999);const s=new Date();s.setDate(s.getDate()-days);s.setHours(0,0,0,0);return{{s,e}};}}
 function render(s,e){{
   const g=new Date(D.generated_at);
-  document.getElementById("gen").textContent="Updated "+fGB(g)+" "+g.toLocaleTimeString("en-GB",{{hour:"2-digit",minute:"2-digit"}})+" UTC";
+  const su=D.consultants[0]?.static_updated?new Date(D.consultants[0].static_updated):null;
+  document.getElementById("hdates").innerHTML=
+    `Calls: ${{fGB(g)}} ${{g.toLocaleTimeString("en-GB",{{hour:"2-digit",minute:"2-digit"}})}}<br>`+
+    (su?`Pipeline: ${{fGB(su)}}`:"");
   document.getElementById("ri").textContent=fGB(s)+" \u2013 "+fGB(e);
   document.getElementById("fd").value=s.toISOString().slice(0,10);
   document.getElementById("td").value=e.toISOString().slice(0,10);
-  let tC=0,tP=0,tPl=0;
-  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;tP+=r.pipe;tPl+=r.placed;return r;}});
+  let tC=0,tD=0,tP=0,tPl=0;
+  const cards=D.consultants.map(c=>{{const r=bC(c,s,e);tC+=r.calls;if(c.dist_total)tD+=c.dist_total;tP+=r.pipe;tPl+=r.placed;return r;}});
   document.getElementById("grid").innerHTML=cards.map(c=>c.html).join("");
   document.getElementById("sg").innerHTML=`
     <div class="sc"><div class="sl">Total calls</div><div class="sv">${{tC}}</div><div class="ss">All consultants</div></div>
+    <div class="sc"><div class="sl">Distribution</div><div class="sv">${{tD}}</div><div class="ss">Candidates assigned</div></div>
     <div class="sc"><div class="sl">At key stages</div><div class="sv">${{tP}}</div><div class="ss">Owned pipeline</div></div>
     <div class="sc"><div class="sl">Placed</div><div class="sv">${{tPl}}</div><div class="ss">In period</div></div>`;
 }}
@@ -313,8 +220,21 @@ function bC(c,s,e){{
     const num=x.n>0?`<span class="mbn" style="${{sn?'':"display:none"}}">${{x.n}}</span>`:"";
     return `<div class="mb" style="height:${{h}}px;opacity:${{op}}" title="${{x.d}}: ${{x.n}}"
       onmouseenter="this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='block')"
-      onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">${{num}}</div>`;
+      onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">
+      ${{num}}</div>`;
   }}).join("");
+  let distHtml="";
+  if(c.dist_total!=null){{
+    const segs=c.dist_stages.map(ds=>{{const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";
+      return `<div class="ss-seg" style="flex:${{ds.count}};background:${{col}}" title="${{ds.stage}}: ${{ds.count}}"></div>`;}}).join("");
+    const legs=c.dist_stages.map(ds=>{{const col=ds.stage==="Assigned"?"#CECBF6":"#534AB7";
+      return `<div class="leg"><div class="ld" style="background:${{col}}"></div>${{ds.stage}}: ${{ds.count}}</div>`;}}).join("");
+    distHtml=`<div><div class="secl">Distribution job</div><div class="bx">
+      <div class="br"><div class="bl">${{c.name.split(" ")[0]}}'s dist. job</div><div class="bn">${{c.dist_total}}</div></div>
+      <div class="bsub">candidates assigned</div>
+      <div class="sb">${{segs}}</div><div class="sl2">${{legs}}</div>
+    </div></div>`;
+  }}
   const byS={{}};SO.forEach(st=>byS[st]=[]);
   c.pipeline.filter(p=>inR(p.stage_date,s,eod)).forEach(p=>{{if(byS[p.stage])byS[p.stage].push(p);}});
   const pipe=c.pipeline.filter(p=>inR(p.stage_date,s,eod)).length;
@@ -322,7 +242,7 @@ function bC(c,s,e){{
   const mxP=Math.max(...SO.map(st=>byS[st].length),1);
   const funnel=SO.map(st=>{{
     const ca=byS[st];const pct=Math.round((ca.length/mxP)*100);
-    const nm=ca.slice(0,4).map(p=>{{
+    const nm=ca.filter(p=>p.name!=="(3 placements)").slice(0,4).map(p=>{{
       const pts=p.name.split(" ");const sh=pts[0]+(pts[1]?" "+pts[1][0]+".":"");
       const pd=p.stage_date?new Date(p.stage_date):null;
       return sh+(pd?" ("+pd.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}})+")":"");
@@ -338,7 +258,7 @@ function bC(c,s,e){{
     `<div><div class="secl">Owned candidates at key stages</div>
       ${{pipe===0?`<div class="nodata">No owned candidates at key stages in this period.</div>`:
         `<div class="fn">${{funnel}}</div>`}}</div>
-    <div class="note">Sales pipeline jobs only. Stage dates = last updated.</div>`;
+    <div class="note">Pipeline updated weekly via Claude MCP. Dist. job counts from last update.</div>`;
   const html=`<div class="card">
     <div class="ch"><div class="av">${{c.initials}}</div>
       <div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div>
@@ -350,7 +270,7 @@ function bC(c,s,e){{
           ${{days.length>1?`<div class="mc"><div class="mbw">${{bars}}</div>
             <div class="mx"><span>${{fS(s)}}</span><span>${{fS(eod)}}</span></div></div>`:""}}
         </div></div>
-      ${{body}}
+      ${{distHtml}}${{body}}
     </div></div>`;
   return {{html,calls,pipe,placed}};
 }}
@@ -368,9 +288,15 @@ applyPreset(30);
 
 if __name__ == "__main__":
     if not API_KEY:
-        print("ERROR: key not set"); sys.exit(1)
+        print("ERROR: RECRUITCRM_API_KEY not set"); sys.exit(1)
     print(f"Key: {API_KEY[:8]}...", flush=True)
-    data = fetch_all()
+    static_path = Path("static_data.json")
+    static = json.loads(static_path.read_text()) if static_path.exists() else {}
+    if static:
+        print(f"Static data loaded (updated {static.get('updated_at','?')[:10]})", flush=True)
+    else:
+        print("WARNING: static_data.json not found")
+    data = fetch_all(static)
     out = Path("docs"); out.mkdir(exist_ok=True)
     (out / "index.html").write_text(build_html(data), encoding="utf-8")
     print(f"\nDone. {data['generated_at']}")
