@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-10T12:09:06.518240",
-  "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards.",
+  "updated_at": "2026-08-10T13:05:08.128348",
+  "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
       "total": 128,
@@ -506,6 +506,60 @@
         "stage": "Final Interviews",
         "stage_date": "2026-07-28",
         "job": "French SDR"
+      },
+      {
+        "name": "Setayesh Lashkari Ghouchani",
+        "stage": "2nd call",
+        "stage_date": "2026-07-30",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Adriana Ionescu",
+        "stage": "2nd call",
+        "stage_date": "2026-07-30",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Maria Carini",
+        "stage": "2nd call",
+        "stage_date": "2026-07-30",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Delia Eyob",
+        "stage": "2nd call",
+        "stage_date": "2026-08-07",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Marta Miles",
+        "stage": "Further Interviews",
+        "stage_date": "2026-08-03",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Hemakshi Soni",
+        "stage": "Further Interviews",
+        "stage_date": "2026-08-04",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Akunna Teresa Opara",
+        "stage": "Further Interviews",
+        "stage_date": "2026-08-04",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Denisa Kurti",
+        "stage": "Call",
+        "stage_date": "2026-07-30",
+        "job": "Care Coordinator (edyn.care)"
+      },
+      {
+        "name": "Aisha Bouanik",
+        "stage": "1st Interviews",
+        "stage_date": "2026-07-31",
+        "job": "Care Coordinator (edyn.care)"
       }
     ]
   },
