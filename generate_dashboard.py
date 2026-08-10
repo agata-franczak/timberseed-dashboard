@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Timberseed Dashboard Generator
-- Meetings: fetched live daily via title pattern
-- Pipeline: open Sales pipeline jobs → candidates filtered by owner + stage
+- Meetings: live daily via title pattern
+- Pipeline: Sales pipeline jobs → candidates filtered by owner + stage
 """
 
 import json, os, sys
@@ -20,12 +20,10 @@ HEADERS  = {"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"}
 
 DAYS_BACK = 90
 CUTOFF    = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).strftime("%Y-%m-%d")
-
-# Sales hiring pipelines only
 SALES_PIPELINE_IDS = {3422}
 
 CONSULTANTS = [
-    {"name":"Toby Ranson", "initials":"TR", "role":"Consultant",
+    {"name":"Toby Ranson",  "initials":"TR", "role":"Consultant",
      "owner_id":140768, "pattern":"Introductory Phone Call | Toby",
      "label":"Candidate intro calls", "note":"Scheduler-booked candidate calls"},
     {"name":"Joe Leonard",  "initials":"JL", "role":"Consultant",
@@ -33,15 +31,13 @@ CONSULTANTS = [
      "label":"Candidate intro calls", "note":"Scheduler-booked candidate calls"},
     {"name":"Finn Phillips","initials":"FP", "role":"Business Development",
      "owner_id":147065, "pattern":"call james pickering",
-     "label":"BD prospect meetings",  "note":"External prospect calls in RecruitCRM"},
+     "label":"BD prospect meetings",  "note":"External prospect calls"},
 ]
 
-# Stages worth showing in the pipeline funnel
 GOOD_STAGES = {
     "CV Sent","1st Interviews","Further Interviews","Final Interviews","Placed",
     "Call","2nd call","Offer","Link sent","Interested",
 }
-# Map job-specific stages → standard labels for the dashboard
 STAGE_MAP = {
     "Call":       "1st Interviews",
     "2nd call":   "1st Interviews",
@@ -67,16 +63,18 @@ def fetch_meetings(owner_id):
               "starting_from": start.strftime("%Y-%m-%d"),
               "starting_to":   end.strftime("%Y-%m-%d"),
               "limit": 100}
-    while page <= 20:
+    while page <= 25:  # cap at 25 pages = 2500 meetings max
         body  = rc_get("/meetings", {**params, "page": page})
         batch = body.get("data", [])
-        print(f"  meetings p{page}: {len(batch)}", flush=True)
-        if not batch: break
+        if not batch:
+            break
         in_range = [m for m in batch if (m.get("start_date") or "")[:10] >= CUTOFF]
         out.extend(in_range)
         oldest = min((m.get("start_date") or "")[:10] for m in batch)
-        if oldest < CUTOFF or not body.get("next_page_url"): break
+        if oldest < CUTOFF or not body.get("next_page_url"):
+            break
         page += 1
+    print(f"  meetings: {len(out)} in range ({page} pages)", flush=True)
     return out
 
 def classify(meetings, pattern):
@@ -88,10 +86,9 @@ def classify(meetings, pattern):
 # ── Pipeline ──────────────────────────────────────────────────────────────────
 
 def fetch_sales_jobs():
-    """All open jobs with Sales hiring pipeline, updated in last 90 days."""
     jobs, page = [], 1
     while True:
-        body = rc_get("/jobs", {"job_status": "1", "limit": 100, "page": page})
+        body  = rc_get("/jobs", {"job_status": "1", "limit": 100, "page": page})
         batch = body.get("data", [])
         if not batch: break
         oldest = min((j.get("updated_on") or "")[:10] for j in batch)
@@ -99,64 +96,85 @@ def fetch_sales_jobs():
                     if (j.get("updated_on") or "")[:10] >= CUTOFF
                     and j.get("hiring_pipeline_id") in SALES_PIPELINE_IDS]
         jobs.extend(in_range)
-        print(f"  jobs p{page}: {len(batch)} total, {len(in_range)} sales in range, oldest: {oldest}", flush=True)
-        if oldest < CUTOFF or not body.get("next_page_url"): break
+        print(f"  jobs p{page}: {len(batch)} scanned, {len(in_range)} sales in range", flush=True)
+        if oldest < CUTOFF or not body.get("next_page_url"):
+            break
         page += 1
-    print(f"  Sales jobs found: {len(jobs)}")
+    print(f"  Sales jobs total: {len(jobs)}", flush=True)
     return jobs
 
 def fetch_pipeline_for_owners(owner_ids):
-    """For each sales job, get candidates owned by our consultants at good stages."""
-    jobs = fetch_sales_jobs()
+    jobs      = fetch_sales_jobs()
     owner_map = {c["owner_id"]: c["name"] for c in CONSULTANTS}
-    pipeline = {}
-    for oid in owner_ids:
-        pipeline[oid] = []
+    pipeline  = {oid: [] for oid in owner_ids}
+    seen      = set()
 
-    seen = set()  # deduplicate candidate+job combos
     for j in jobs:
         slug = j.get("slug")
         if not slug: continue
         try:
             page, all_cands = 1, []
-            while True:
-                body = rc_get("/candidates", {"job_slug": slug, "limit": 100, "page": page})
+            while page <= 5:
+                body  = rc_get("/candidates", {"job_slug": slug, "limit": 100, "page": page})
                 batch = body.get("data", [])
                 all_cands.extend(batch)
-                if not body.get("next_page_url") or page >= 5: break
+                if not body.get("next_page_url"): break
                 page += 1
 
+            matched = 0
             for c in all_cands:
+                # Try both possible owner fields
                 owner = c.get("owner_id") or c.get("owner")
-                if owner not in owner_ids: continue
+                if owner not in owner_ids:
+                    continue
                 stage_raw = c.get("status_label") or "?"
-                if stage_raw not in GOOD_STAGES: continue
-                stage = STAGE_MAP.get(stage_raw, stage_raw)
+                if stage_raw not in GOOD_STAGES:
+                    continue
                 updated = (c.get("updated_on") or "")[:10]
-                if updated < CUTOFF: continue
+                if updated < CUTOFF:
+                    continue
                 key = (c.get("slug"), slug)
-                if key in seen: continue
+                if key in seen:
+                    continue
                 seen.add(key)
+                stage = STAGE_MAP.get(stage_raw, stage_raw)
                 pipeline[owner].append({
                     "name":       f"{c.get('first_name','')} {c.get('last_name','')}".strip(),
                     "stage":      stage,
                     "stage_date": updated,
                     "job":        j.get("name",""),
                 })
+                matched += 1
+
+            if matched > 0:
+                print(f"  {j.get('name')}: {len(all_cands)} candidates, {matched} matched", flush=True)
         except Exception as e:
             print(f"  {j.get('name')}: {e}", flush=True)
 
+    # Debug: show what owner IDs we actually saw
+    print(f"\nDebug — owner IDs seen in candidates (first 10 unique):", flush=True)
+    all_seen = {}
+    for j in jobs[:5]:  # sample first 5 jobs
+        try:
+            body  = rc_get("/candidates", {"job_slug": j.get("slug"), "limit": 10})
+            for c in body.get("data", []):
+                oid = c.get("owner_id") or c.get("owner")
+                all_seen[oid] = all_seen.get(oid, 0) + 1
+        except: pass
+    for oid, cnt in sorted(all_seen.items(), key=lambda x:-x[1])[:10]:
+        print(f"  {oid}: {cnt} (looking for {list(owner_ids)})", flush=True)
+
     for oid, entries in pipeline.items():
-        print(f"  {owner_map.get(oid)}: {len(entries)} pipeline candidates")
+        print(f"  {owner_map.get(oid)}: {len(entries)} pipeline candidates", flush=True)
     return pipeline
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# ── Main & HTML (unchanged) ───────────────────────────────────────────────────
 
 def fetch_all():
     now  = datetime.now(timezone.utc)
     data = {"generated_at": now.isoformat(), "consultants": []}
 
-    print("Fetching pipeline (Sales jobs)...", flush=True)
+    print("Fetching pipeline...", flush=True)
     owner_ids = {c["owner_id"] for c in CONSULTANTS if c["role"] == "Consultant"}
     pipeline  = fetch_pipeline_for_owners(owner_ids)
 
@@ -165,7 +183,7 @@ def fetch_all():
         raw      = fetch_meetings(c["owner_id"])
         meetings = classify(raw, c["pattern"])
         calls    = sum(1 for m in meetings if m["is_call"])
-        print(f"  calls: {calls}")
+        print(f"  calls classified: {calls}", flush=True)
         data["consultants"].append({
             "name":          c["name"],
             "initials":      c["initials"],
@@ -176,8 +194,6 @@ def fetch_all():
             "pipeline":      pipeline.get(c["owner_id"], []),
         })
     return data
-
-# ── HTML ─────────────────────────────────────────────────────────────────────
 
 def build_html(data):
     dj = json.dumps(data, ensure_ascii=False)
@@ -197,7 +213,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 .logo{{display:flex;align-items:center;gap:10px}}
 .lm{{width:34px;height:34px;border-radius:8px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}}
 .ln{{font-size:15px;font-weight:600}}.ls{{font-size:12px;color:var(--t3);margin-top:1px}}
-.hdates{{text-align:right;font-size:11px;color:var(--t3);line-height:1.6}}
+.gen{{font-size:11px;color:var(--t3)}}
 .ctrl{{background:var(--s);border-bottom:1px solid var(--b);padding:.875rem 1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}}
 .cl{{font-size:12px;font-weight:500;color:var(--t2)}}
 .prs{{display:flex;gap:6px;flex-wrap:wrap}}
@@ -245,7 +261,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
   <div class="logo"><div class="lm">TS</div>
     <div><div class="ln">Timberseed</div><div class="ls">Consultant Performance Dashboard</div></div>
   </div>
-  <div class="hdates" id="gen"></div>
+  <div class="gen" id="gen"></div>
 </header>
 <div class="ctrl">
   <span class="cl">Period:</span>
@@ -265,9 +281,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgro
 </div>
 <main class="main"><div class="sg" id="sg"></div><div class="grid" id="grid"></div></main>
 <script>
-const D={dj};
-const SC={sc};
-const SO={so};
+const D={dj};const SC={sc};const SO={so};
 const fGB=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short",year:"numeric"}});
 const fS=d=>d.toLocaleDateString("en-GB",{{day:"numeric",month:"short"}});
 function inR(ds,s,e){{if(!ds)return false;const d=new Date(ds);d.setHours(12);return d>=s&&d<=e;}}
@@ -299,8 +313,7 @@ function bC(c,s,e){{
     const num=x.n>0?`<span class="mbn" style="${{sn?'':"display:none"}}">${{x.n}}</span>`:"";
     return `<div class="mb" style="height:${{h}}px;opacity:${{op}}" title="${{x.d}}: ${{x.n}}"
       onmouseenter="this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='block')"
-      onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">
-      ${{num}}</div>`;
+      onmouseleave="${{sn?'':"this.querySelector('.mbn')&&(this.querySelector('.mbn').style.display='none')"}}">${{num}}</div>`;
   }}).join("");
   const byS={{}};SO.forEach(st=>byS[st]=[]);
   c.pipeline.filter(p=>inR(p.stage_date,s,eod)).forEach(p=>{{if(byS[p.stage])byS[p.stage].push(p);}});
@@ -325,7 +338,7 @@ function bC(c,s,e){{
     `<div><div class="secl">Owned candidates at key stages</div>
       ${{pipe===0?`<div class="nodata">No owned candidates at key stages in this period.</div>`:
         `<div class="fn">${{funnel}}</div>`}}</div>
-    <div class="note">Pipeline: Sales hiring pipeline jobs, last 90 days. Stage dates = last updated.</div>`;
+    <div class="note">Sales pipeline jobs only. Stage dates = last updated.</div>`;
   const html=`<div class="card">
     <div class="ch"><div class="av">${{c.initials}}</div>
       <div><div class="cn">${{c.name}}</div><div class="cr">${{c.role}}</div></div></div>
@@ -355,9 +368,9 @@ applyPreset(30);
 
 if __name__ == "__main__":
     if not API_KEY:
-        print("ERROR: RECRUITCRM_API_KEY not set"); sys.exit(1)
+        print("ERROR: key not set"); sys.exit(1)
     print(f"Key: {API_KEY[:8]}...", flush=True)
     data = fetch_all()
     out = Path("docs"); out.mkdir(exist_ok=True)
     (out / "index.html").write_text(build_html(data), encoding="utf-8")
-    print(f"\nDone. Generated at {data['generated_at']}")
+    print(f"\nDone. {data['generated_at']}")
