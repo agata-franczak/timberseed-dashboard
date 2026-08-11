@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T14:51:18.529466+00:00",
+  "updated_at": "2026-08-11T08:18:25.548001+00:00",
   "note": "Updated 2026-08-10 via full Claude MCP sweep of all active Toby/Joe/Jonathan jobs. stage_date reflects actual date the candidate entered their current stage (computed from RecruitCRM's days_in_current_stage), so the dashboard's date-range filter now works correctly. Only candidates past initial sourcing (Call, 2nd call, CV Sent, Interviews, Offer, Placed) are included. Jonathan Dusse's data is kept separate under other_consultants_pipeline, not wired into the Toby/Joe dashboard cards. Care Coordinator (edyn.care) added to Joe's pipeline on 2026-08-10 — role spans sales and recruitment, included by request even though it isn't on the Sales hiring pipeline (id 3422).",
   "dist_jobs": {
     "Toby Ranson": {
@@ -7,28 +7,28 @@
       "stages": [
         {
           "stage": "Assigned",
-          "count": 11
+          "count": 2
         },
         {
           "stage": "Call",
-          "count": 119
+          "count": 128
         }
       ],
-      "updated_at": "2026-08-10T14:00:57.156187+00:00"
+      "updated_at": "2026-08-11T08:18:15.517263+00:00"
     },
     "Joe Leonard": {
       "total": 123,
       "stages": [
         {
           "stage": "Assigned",
-          "count": 3
+          "count": 2
         },
         {
           "stage": "Call",
-          "count": 120
+          "count": 121
         }
       ],
-      "updated_at": "2026-08-10T14:00:57.156187+00:00"
+      "updated_at": "2026-08-11T08:18:15.517263+00:00"
     }
   },
   "pipeline": {
@@ -1024,6 +1024,24 @@
         "stage": "Call",
         "stage_date": "2026-04-08",
         "job": "SDR (Xelix)"
+      },
+      {
+        "name": "Michael J. Urkonis",
+        "stage": "Call",
+        "job": "Ent AE",
+        "stage_date": "2026-07-14"
+      },
+      {
+        "name": "Moritz Pfeiffer",
+        "stage": "2nd call",
+        "stage_date": "2026-07-28",
+        "job": "Grad SDR (Munich)"
+      },
+      {
+        "name": "Kateryna L.",
+        "stage": "Call",
+        "stage_date": "2026-07-27",
+        "job": "Grad SDR (Munich)"
       }
     ]
   },
@@ -1566,7 +1584,7 @@
       "coverage": "complete",
       "coverage_note": null,
       "last_swept": "2026-08-10T14:33:53.349366+00:00",
-      "company": "EngageTech"
+      "company": "Aura Commodities"
     },
     {
       "name": "English BDR",
@@ -1657,6 +1675,50 @@
       "company": "Bazaarvoice"
     },
     {
+      "name": "Ent AE",
+      "owner": "Joe Leonard",
+      "location": "US (remote/unspecified)",
+      "candidates_in_process": 3,
+      "stage_breakdown": [
+        {
+          "stage": "Call",
+          "count": 3
+        },
+        {
+          "stage": "2nd call",
+          "count": 0
+        },
+        {
+          "stage": "CV Sent",
+          "count": 0
+        },
+        {
+          "stage": "1st Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Further Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Final Interviews",
+          "count": 0
+        },
+        {
+          "stage": "Offer",
+          "count": 0
+        },
+        {
+          "stage": "Placed",
+          "count": 0
+        }
+      ],
+      "coverage": "partial",
+      "coverage_note": "~600 of an estimated 600+ candidates analyzed (still truncated, next_window start_page=7)",
+      "last_swept": "2026-08-11T08:09:13.987205+00:00",
+      "company": "Siro"
+    },
+    {
       "name": "German SDR",
       "owner": "Toby Ranson",
       "location": "UK (remote/unspecified)",
@@ -1701,18 +1763,19 @@
       "company": "EngageTech"
     },
     {
-      "name": "Ent AE",
+      "name": "Grad SDR (Munich)",
       "owner": "Joe Leonard",
-      "location": "US (remote/unspecified)",
+      "location": "Munich, Germany",
+      "company": "Bazaarvoice",
       "candidates_in_process": 2,
       "stage_breakdown": [
         {
           "stage": "Call",
-          "count": 2
+          "count": 1
         },
         {
           "stage": "2nd call",
-          "count": 0
+          "count": 1
         },
         {
           "stage": "CV Sent",
@@ -1739,10 +1802,9 @@
           "count": 0
         }
       ],
-      "coverage": "complete",
-      "coverage_note": null,
-      "last_swept": "2026-08-10T14:33:53.349366+00:00",
-      "company": "Siro"
+      "coverage": "partial",
+      "coverage_note": "~300 of an estimated 300+ candidates analyzed (newly discovered job, not previously tracked; first sweep only)",
+      "last_swept": "2026-08-11T08:18:25.548001+00:00"
     },
     {
       "name": "Travel Account Executive",
@@ -1789,5 +1851,5 @@
       "company": "EngageTech"
     }
   ],
-  "open_jobs_updated_at": "2026-08-10T14:51:18.529466+00:00"
+  "open_jobs_updated_at": "2026-08-11T08:18:25.548001+00:00"
 }
